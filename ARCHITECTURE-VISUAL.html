@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIS System - Visual Architecture Blueprint</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-pink: #ec4899;
+            --border: #334155;
+            --gradient-1: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --gradient-2: linear-gradient(135deg, #06b6d4, #10b981);
+            --gradient-3: linear-gradient(135deg, #f59e0b, #ef4444);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            padding: 60px 40px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(59,130,246,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, rgba(139,92,246,0.1) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            z-index: 1;
+        }
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-top: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-stat {
+            text-align: center;
+        }
+        .hero-stat .number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-stat .label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Navigation */
+        .nav {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .nav a {
+            display: inline-block;
+            padding: 14px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav a:hover {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 60px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: white;
+        }
+        .section-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        /* Diagram Container */
+        .diagram-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+        .diagram-container h3 {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Grid Layouts */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+        .card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59,130,246,0.15);
+        }
+        .card h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .card .tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* Tech Stack Table */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .tech-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+        .tech-item:hover {
+            border-color: var(--accent-cyan);
+        }
+        .tech-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .tech-item .name { font-weight: 600; font-size: 0.9rem; }
+        .tech-item .version { color: var(--text-muted); font-size: 0.8rem; }
+
+        /* Module Grid */
+        .module-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+        .module-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        .module-card .module-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        .module-card .module-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        .module-card .module-detail {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .module-card .module-stats {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .module-card .module-stats span {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(59,130,246,0.15);
+            color: var(--accent-blue);
+        }
+
+        /* RBAC Matrix */
+        .rbac-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .rbac-table th, .rbac-table td {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .rbac-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-secondary);
+            position: sticky;
+            top: 48px;
+        }
+        .rbac-table th:first-child, .rbac-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            min-width: 130px;
+        }
+        .rbac-table tr:hover td { background: rgba(59,130,246,0.05); }
+        .check { color: var(--accent-green); font-size: 1.1rem; }
+        .cross { color: var(--text-muted); font-size: 0.9rem; }
+
+        /* Flow Steps */
+        .flow-steps {
+            position: relative;
+            padding-left: 40px;
+        }
+        .flow-steps::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+        .flow-step {
+            position: relative;
+            margin-bottom: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .flow-step::before {
+            content: '';
+            position: absolute;
+            left: -33px;
+            top: 24px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-blue);
+            background: var(--bg-primary);
+        }
+        .flow-step h4 {
+            color: var(--accent-blue);
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+        .flow-step p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .flow-step code {
+            background: rgba(59,130,246,0.1);
+            color: var(--accent-cyan);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* Docker Visual */
+        .docker-visual {
+            display: flex;
+            gap: 20px;
+            align-items: stretch;
+        }
+        .docker-service {
+            flex: 1;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .docker-service:hover {
+            transform: translateY(-4px);
+        }
+        .docker-service .service-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+        .docker-service .service-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+        .docker-service .service-desc {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+        .docker-service .service-port {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .docker-arrow {
+            display: flex;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+        }
+
+        /* Color utilities */
+        .bg-blue { background: rgba(59,130,246,0.2); color: var(--accent-blue); }
+        .bg-green { background: rgba(16,185,129,0.2); color: var(--accent-green); }
+        .bg-purple { background: rgba(139,92,246,0.2); color: var(--accent-purple); }
+        .bg-orange { background: rgba(245,158,11,0.2); color: var(--accent-orange); }
+        .bg-red { background: rgba(239,68,68,0.2); color: var(--accent-red); }
+        .bg-cyan { background: rgba(6,182,212,0.2); color: var(--accent-cyan); }
+        .bg-pink { background: rgba(236,72,153,0.2); color: var(--accent-pink); }
+
+        .border-blue { border-color: var(--accent-blue) !important; }
+        .border-green { border-color: var(--accent-green) !important; }
+        .border-purple { border-color: var(--accent-purple) !important; }
+        .border-orange { border-color: var(--accent-orange) !important; }
+        .border-red { border-color: var(--accent-red) !important; }
+        .border-cyan { border-color: var(--accent-cyan) !important; }
+
+        .top-blue::before { background: var(--accent-blue); }
+        .top-green::before { background: var(--accent-green); }
+        .top-purple::before { background: var(--accent-purple); }
+        .top-orange::before { background: var(--accent-orange); }
+        .top-red::before { background: var(--accent-red); }
+        .top-cyan::before { background: var(--accent-cyan); }
+        .top-pink::before { background: var(--accent-pink); }
+
+        /* Patterns */
+        .pattern-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .pattern-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid;
+        }
+        .pattern-card h4 {
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+        .pattern-card p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .grid-4 { grid-template-columns: repeat(3, 1fr); }
+            .grid-3 { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .grid-4, .grid-3, .grid-2, .pattern-grid { grid-template-columns: 1fr; }
+            .docker-visual { flex-direction: column; }
+            .docker-arrow { transform: rotate(90deg); justify-content: center; }
+            .hero h1 { font-size: 2rem; }
+            .hero-stats { flex-wrap: wrap; gap: 20px; }
+            .container { padding: 20px; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+    <h1>HIS System Architecture</h1>
+    <p>Hospital Information System - Complete Visual Blueprint</p>
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <div class="number">26</div>
+            <div class="label">Modules</div>
+        </div>
+        <div class="hero-stat">
+            <div class="number">71</div>
+            <div class="label">DB Models</div>
+        </div>
+        <div class="hero-stat">
+            <div class="number">73</div>
+            <div class="label">Routes</div>
+        </div>
+        <div class="hero-stat">
+            <div class="number">29+</div>
+            <div class="label">API Endpoints</div>
+        </div>
+        <div class="hero-stat">
+            <div class="number">8</div>
+            <div class="label">User Roles</div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation -->
+<nav class="nav">
+    <a href="#overview">Overview</a>
+    <a href="#tech-stack">Tech Stack</a>
+    <a href="#auth-flow">Auth Flow</a>
+    <a href="#database">Database</a>
+    <a href="#api-layer">API Layer</a>
+    <a href="#frontend">Frontend</a>
+    <a href="#rbac">RBAC Matrix</a>
+    <a href="#modules">Modules</a>
+    <a href="#data-flow">Data Flow</a>
+    <a href="#docker">Docker</a>
+    <a href="#patterns">Patterns</a>
+</nav>
+
+<div class="container">
+
+    <!-- 1. System Overview -->
+    <div class="section" id="overview">
+        <div class="section-header">
+            <div class="section-number" style="background: var(--gradient-1);">1</div>
+            <h2>System Overview</h2>
+        </div>
+        <div class="diagram-container">
+            <h3>High-Level Architecture</h3>
+            <div class="mermaid">
+graph TB
+    subgraph CLIENT["Browser Client"]
+        UI["React UI<br/>(Next.js App Router)"]
+        FORMS["React Hook Form<br/>+ Zod Validation"]
+        STATE["useState / useEffect<br/>Client State"]
+    end
+
+    subgraph NEXTJS["Next.js 16 Server"]
+        MW["Middleware<br/>(Auth + RBAC)"]
+        API["API Route Handlers<br/>(29+ endpoints)"]
+        AUTH["NextAuth.js<br/>(JWT Strategy)"]
+        VALID["Zod Validation<br/>(Server-side)"]
+        HELPERS["Helpers<br/>(Response, Pagination, ID Gen)"]
+    end
+
+    subgraph DATA["Data Layer"]
+        PRISMA["Prisma ORM<br/>(Singleton Client)"]
+        PG[("PostgreSQL 16<br/>71 models / 17 enums")]
+    end
+
+    subgraph INFRA["Docker Compose"]
+        D_APP["his-app<br/>:9003"]
+        D_DB["his-database<br/>:9004"]
+        D_MIG["his-migrate<br/>(one-shot)"]
+    end
+
+    UI -->|HTTP Request| MW
+    MW -->|Authorized| API
+    MW -->|Unauthorized| AUTH
+    UI --> FORMS
+    UI --> STATE
+    API --> AUTH
+    API --> VALID
+    API --> HELPERS
+    API --> PRISMA
+    PRISMA --> PG
+
+    D_APP -.->|contains| NEXTJS
+    D_DB -.->|contains| PG
+    D_MIG -.->|schema push + seed| PG
+
+    style CLIENT fill:#1e1b4b,stroke:#3b82f6,color:#f1f5f9
+    style NEXTJS fill:#172554,stroke:#3b82f6,color:#f1f5f9
+    style DATA fill:#14532d,stroke:#10b981,color:#f1f5f9
+    style INFRA fill:#431407,stroke:#f59e0b,color:#f1f5f9
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Tech Stack -->
+    <div class="section" id="tech-stack">
+        <div class="section-header">
+            <div class="section-number" style="background: var(--gradient-2);">2</div>
+            <h2>Technology Stack</h2>
+        </div>
+        <div class="tech-grid">
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(59,130,246,0.2); color: var(--accent-blue);">N</div>
+                <div><div class="name">Next.js</div><div class="version">v16.1.6 (App Router)</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(6,182,212,0.2); color: var(--accent-cyan);">TS</div>
+                <div><div class="name">TypeScript</div><div class="version">v5.x</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(139,92,246,0.2); color: var(--accent-purple);">P</div>
+                <div><div class="name">Prisma ORM</div><div class="version">v6.19.2</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(59,130,246,0.2); color: var(--accent-blue);">PG</div>
+                <div><div class="name">PostgreSQL</div><div class="version">v16 (Alpine)</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">NA</div>
+                <div><div class="name">NextAuth.js</div><div class="version">v4.24.13</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(236,72,153,0.2); color: var(--accent-pink);">R</div>
+                <div><div class="name">React</div><div class="version">v19</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(6,182,212,0.2); color: var(--accent-cyan);">TW</div>
+                <div><div class="name">Tailwind CSS</div><div class="version">v4.x</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(139,92,246,0.2); color: var(--accent-purple);">RX</div>
+                <div><div class="name">Radix UI</div><div class="version">20+ components</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(245,158,11,0.2); color: var(--accent-orange);">Z</div>
+                <div><div class="name">Zod</div><div class="version">Validation</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(239,68,68,0.2); color: var(--accent-red);">RHF</div>
+                <div><div class="name">React Hook Form</div><div class="version">Form State</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(16,185,129,0.2); color: var(--accent-green);">TT</div>
+                <div><div class="name">TanStack Table</div><div class="version">Data Tables</div></div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(245,158,11,0.2); color: var(--accent-orange);">D</div>
+                <div><div class="name">Docker</div><div class="version">Compose</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Authentication Flow -->
+    <div class="section" id="auth-flow">
+        <div class="section-header">
+            <div class="section-number" style="background: var(--gradient-3);">3</div>
+            <h2>Authentication Flow</h2>
+        </div>
+        <div class="diagram-container">
+            <h3>Login & Session Management</h3>
+            <div class="mermaid">
+sequenceDiagram
+    participant U as User Browser
+    participant L as Login Page
+    participant NA as NextAuth API
+    participant DB as PostgreSQL
+    participant MW as Middleware
+    participant D as Dashboard
+
+    U->>L: Navigate to /login
+    L->>U: Show login form
+
+    U->>L: Enter email + password
+    L->>NA: POST /api/auth/callback/credentials
+
+    NA->>DB: Find user by email (active, not deleted)
+    DB-->>NA: User record
+
+    NA->>NA: bcryptjs.compare(password, hash)
+
+    alt Invalid Credentials
+        NA-->>L: Error: Invalid credentials
+        L-->>U: Show error message
+    end
+
+    NA->>NA: Generate JWT (id, email, name, role)
+    NA-->>U: Set JWT cookie + redirect
+
+    U->>MW: GET /dashboard
+    MW->>MW: Decode JWT token
+    MW->>MW: Check PERMISSIONS[role]
+    MW-->>D: Authorized - render page
+
+    Note over U,D: JWT contains: user.id, user.email, user.name, user.role
+            </div>
+        </div>
+        <div class="diagram-container">
+            <h3>Route Protection Flow</h3>
+            <div class="mermaid">
+flowchart LR
+    REQ[Incoming Request] --> MW{Middleware}
+    MW -->|Has JWT?| DECODE[Decode Token]
+    MW -->|No JWT| LOGIN[Redirect /login]
+    DECODE --> ROLE{Check Role}
+    ROLE -->|Map URL to Module| PERM{Has Permission?}
+    PERM -->|Yes| ALLOW[Allow Access]
+    PERM -->|No| DENY[403 Forbidden]
+
+    ALLOW --> API{API Route}
+    API --> AUTH2[requireAuth check]
+    AUTH2 -->|Authorized| LOGIC[Business Logic]
+    AUTH2 -->|Denied| ERR[Error Response]
+
+    style REQ fill:#1e1b4b,stroke:#3b82f6,color:#f1f5f9
+    style MW fill:#172554,stroke:#f59e0b,color:#f1f5f9
+    style LOGIN fill:#431407,stroke:#ef4444,color:#f1f5f9
+    style ALLOW fill:#14532d,stroke:#10b981,color:#f1f5f9
+    style DENY fill:#431407,stroke:#ef4444,color:#f1f5f9
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Database Layer -->
+    <div class="section" id="database">
+        <div class="section-header">
+            <div class="section-number" style="background: var(--gradient-1);">4</div>
+            <h2>Database Architecture</h2>
+        </div>
+        <div class="diagram-container">
+            <h3>Entity Relationship Diagram (Core Models)</h3>
+            <div class="mermaid">
+erDiagram
+    User ||--o{ Doctor : "is a"
+    User ||--o{ Employee : "is a"
+    User ||--o{ AuditLog : "generates"
+
+    Doctor ||--o{ Appointment : "attends"
+    Doctor ||--o{ Consultation : "performs"
+    Doctor ||--o{ DoctorSchedule : "has"
+
+    Patient ||--o{ Appointment : "books"
+    Patient ||--o{ Consultation : "receives"
+    Patient ||--o{ Admission : "has"
+    Patient ||--o{ Invoice : "billed"
+    Patient ||--o{ Prescription : "prescribed"
+    Patient ||--o{ LabOrder : "ordered"
+    Patient ||--o{ RadiologyOrder : "ordered"
+    Patient ||--o{ Surgery : "undergoes"
+    Patient ||--o{ EmergencyVisit : "visits"
+    Patient ||--o{ InsurancePolicy : "holds"
+    Patient ||--o{ BloodRequest : "requests"
+    Patient ||--o{ DietPlan : "follows"
+    Patient ||--o{ TherapyPlan : "follows"
+    Patient ||--o{ MedicalRecord : "has"
+    Patient ||--o{ TeleconsultSession : "attends"
+
+    Admission ||--o{ ProgressNote : "has"
+    Admission ||--o{ DoctorOrder : "has"
+    Admission ||--|| Bed : "occupies"
+    Ward ||--o{ Bed : "contains"
+
+    Invoice ||--o{ InvoiceItem : "contains"
+    Invoice ||--o{ Payment : "receives"
+
+    Prescription ||--o{ PrescriptionItem : "contains"
+    LabOrder ||--o{ LabOrderItem : "contains"
+    RadiologyOrder ||--o{ RadiologyOrderItem : "contains"
+
+    Surgery ||--o{ SurgeryTeamMember : "has"
+    Surgery ||--o{ SurgeryChecklist : "follows"
+    Surgery ||--|| OperationTheatre : "performed in"
+
+    InsuranceClaim ||--o{ ClaimDocument : "has"
+
+    BloodDonor ||--o{ BloodDonation : "donates"
+    BloodRequest ||--o{ BloodIssuance : "fulfilled by"
+            </div>
+        </div>
+        <div class="diagram-container">
+            <h3>Model Distribution by Module</h3>
+            <div class="mermaid">
+pie title Database Models by Category (71 Total)
+    "Inventory & Store" : 6
+    "IPD / Inpatient" : 5
+    "Insurance / TPA" : 5
+    "Blood Bank" : 5
+    "Auth & Users" : 4
+    "Pharmacy" : 4
+    "Surgery / OT" : 4
+    "Radiology" : 4
+    "HR & Payroll" : 4
+    "Patient Mgmt" : 3
+    "Doctor & Staff" : 3
+    "Billing" : 3
+    "Laboratory" : 3
+    "OPD" : 2
+    "Hospital Config" : 2
+    "Queue" : 2
+    "CSSD" : 2
+    "Ambulance" : 2
+    "Dietary" : 2
+    "Physiotherapy" : 2
+    "Others" : 4
+            </div>
+        </div>
+        <div class="diagram-container">
+            <h3>17 Database Enums</h3>
+            <div class="grid-4" style="margin-top: 10px;">
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-blue);">Role</h4>
+                    <p style="font-size: 0.75rem;">ADMIN, DOCTOR, NURSE, RECEPTIONIST, PHARMACIST, LAB_TECHNICIAN, RADIOLOGIST, ACCOUNTANT</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-green);">AppointmentStatus</h4>
+                    <p style="font-size: 0.75rem;">SCHEDULED, CHECKED_IN, IN_PROGRESS, COMPLETED, CANCELLED, NO_SHOW</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-purple);">AdmissionStatus</h4>
+                    <p style="font-size: 0.75rem;">ADMITTED, DISCHARGED, TRANSFERRED, DECEASED</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-orange);">InvoiceStatus</h4>
+                    <p style="font-size: 0.75rem;">DRAFT, ISSUED, PARTIALLY_PAID, PAID, CANCELLED, REFUNDED</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-red);">TriageLevel</h4>
+                    <p style="font-size: 0.75rem;">RESUSCITATION, EMERGENT, URGENT, LESS_URGENT, NON_URGENT</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-cyan);">SurgeryStatus</h4>
+                    <p style="font-size: 0.75rem;">SCHEDULED, PREP, IN_PROGRESS, RECOVERY, COMPLETED, CANCELLED</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-pink);">ClaimStatus</h4>
+                    <p style="font-size: 0.75rem;">DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, PARTIALLY_APPROVED, REJECTED, SETTLED</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-blue);">BloodComponent</h4>
+                    <p style="font-size: 0.75rem;">WHOLE_BLOOD, PACKED_RBC, PLATELET, PLASMA, CRYOPRECIPITATE</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-green);">BedStatus</h4>
+                    <p style="font-size: 0.75rem;">AVAILABLE, OCCUPIED, MAINTENANCE, RESERVED</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-purple);">OrderStatus</h4>
+                    <p style="font-size: 0.75rem;">PENDING, IN_PROGRESS, COMPLETED, CANCELLED</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-orange);">PaymentMethod</h4>
+                    <p style="font-size: 0.75rem;">CASH, CARD, UPI, INSURANCE, BANK_TRANSFER, CHEQUE</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-red);">AmbulanceStatus</h4>
+                    <p style="font-size: 0.75rem;">AVAILABLE, DISPATCHED, EN_ROUTE, AT_SCENE, RETURNING, MAINTENANCE</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-cyan);">SterilizationStatus</h4>
+                    <p style="font-size: 0.75rem;">PENDING, IN_PROGRESS, STERILIZED, ISSUED, RETURNED</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-pink);">BloodGroup</h4>
+                    <p style="font-size: 0.75rem;">A+, A-, B+, B-, AB+, AB-, O+, O-</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-blue);">Gender</h4>
+                    <p style="font-size: 0.75rem;">MALE, FEMALE, OTHER</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-green);">LeaveStatus</h4>
+                    <p style="font-size: 0.75rem;">PENDING, APPROVED, REJECTED, CANCELLED</p>
+                </div>
+                <div class="card" style="padding: 14px;">
+                    <h4 style="font-size: 0.85rem; color: var(--accent-purple);">PurchaseOrderStatus</h4>
+                    <p style="font-size: 0.75rem;">DRAFT, SUBMITTED, APPROVED, RECEIVED, CANCELLED</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. API Layer -->
+    <div class="section" id="api-layer">
+        <div class="section-header">
+            <div class="section-number" style="background: var(--gradient-2);">5</div>
+            <h2>API Layer</h2>
+        </div>
+        <div class="diagram-container">
+            <h3>API Request Processing Pipeline</h3>
+            <div class="mermaid">
+flowchart LR
+    A["HTTP Request"] --> B["requireAuth()"]
+    B --> C{"Authenticated?"}
+    C -->|No| D["401 Unauthorized"]
+    C -->|Yes| E{"Has Permission?"}
+    E -->|No| F["403 Forbidden"]
+    E -->|Yes| G["Parse Params"]
+    G --> H["Zod Validate"]
+    H --> I{"Valid?"}
+    I -->|No| J["422 Validation Error"]
+    I -->|Yes| K["Prisma Query"]
+    K --> L["Format Response"]
+    L --> M["200 / 201 JSON"]
+
+    style A fill:#1e1b4b,stroke:#3b82f6,color:#f1f5f9
+    style D fill:#431407,stroke:#ef4444,color:#f1f5f9
+    style F fill:#431407,stroke:#ef4444,color:#f1f5f9
+    style J fill:#431407,stroke:#f59e0b,color:#f1f5f9
+    style M fill:#14532d,stroke:#10b981,color:#f1f5f9
+            </div>
+        </div>
+        <div class="diagram-container">
+            <h3>API Response Format</h3>
+            <div class="grid-3">
+                <div class="card border-green">
+                    <h4 style="color: var(--accent-green);">Success (List)</h4>
+                    <pre style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 8px; white-space: pre-wrap;">
+{
+  "success": true,
+  "data": [...],
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "totalPages": 8
+  }
+}</pre>
+                </div>
+                <div class="card border-blue">
+                    <h4 style="color: var(--accent-blue);">Success (Create)</h4>
+                    <pre style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 8px; white-space: pre-wrap;">
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "mrn": "MRN-20260227-0001",
+    "firstName": "John",
+    ...
+  }
+}</pre>
+                </div>
+                <div class="card border-red">
+                    <h4 style="color: var(--accent-red);">Error</h4>
+                    <pre style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 8px; white-space: pre-wrap;">
+{
+  "success": false,
+  "error": "Patient not found"
+}
+
+Status codes:
+  401 - Unauthorized
+  403 - Forbidden
+  404 - Not Found
+  422 - Validation Error
+  500 - Server Error</pre>
+                </div>
+            </div>
+        </div>
+        <div class="diagram-container">
+            <h3>API Route Map (29+ Endpoints)</h3>
+            <div class="mermaid">
+graph LR
+    subgraph CORE["Core Routes"]
+        P["/api/patients"] --> P1["GET POST"]
+        P --> P2["[id] GET PUT DELETE"]
+        P --> P3["/search GET"]
+        AP["/api/appointments"] --> AP1["GET POST"]
+        AP --> AP2["[id] GET PUT"]
+        AP --> AP3["/available-slots GET"]
+    end
+
+    subgraph CLINICAL["Clinical Routes"]
+        OPD["/api/opd"] --> OPD1["/consultations"]
+        OPD --> OPD2["/vitals"]
+        OPD --> OPD3["/queue"]
+        IPD["/api/ipd"] --> IPD1["/admissions"]
+        IPD --> IPD2["/beds"]
+        IPD --> IPD3["/wards"]
+        EM["/api/emergency"] --> EM1["/visits"]
+        SUR["/api/surgery"] --> SUR1["/theatres + checklists"]
+    end
+
+    subgraph ANCILLARY["Ancillary Routes"]
+        PH["/api/pharmacy"] --> PH1["/drugs /prescriptions /dispense"]
+        LAB["/api/laboratory"] --> LAB1["/orders /tests /results"]
+        RAD["/api/radiology"] --> RAD1["/orders /modalities"]
+        BB["/api/blood-bank"] --> BB1["/donors /inventory /requests"]
+    end
+
+    subgraph ADMIN["Admin Routes"]
+        BIL["/api/billing"] --> BIL1["/invoices /payments"]
+        INS["/api/insurance"] --> INS1["/claims /providers /policies"]
+        HR["/api/hr"] --> HR1["/employees /attendance /payroll"]
+        INV["/api/inventory"] --> INV1["/items /suppliers /purchase-orders"]
+        SET["/api/settings"] --> SET1["/hospital /users"]
+    end
+
+    style CORE fill:#172554,stroke:#3b82f6,color:#f1f5f9
+    style CLINICAL fill:#14532d,stroke:#10b981,color:#f1f5f9
+    style ANCILLARY fill:#1e1b4b,stroke:#8b5cf6,color:#f1f5f9
+    style ADMIN fill:#431407,stroke:#f59e0b,color:#f1f5f9
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Frontend Architecture -->
+    <div class="section" id="frontend">
+        <div class="section-header">
+            <div class="section-number" style="background: var(--gradient-3);">6</div>
+            <h2>Frontend Architecture</h2>
+        </div>
+        <div class="diagram-container">
+            <h3>Component Hierarchy</h3>
+            <div class="mermaid">
+graph TB
+    ROOT["RootLayout<br/>(layout.tsx)"] --> THEME["ThemeProvider<br/>(Light/Dark)"]
+    THEME --> AUTHP["AuthProvider<br/>(SessionProvider)"]
+
+    AUTHP --> AUTH_GROUP["(auth) Group"]
+    AUTHP --> DASH_GROUP["(dashboard) Group"]
+
+    AUTH_GROUP --> LOGIN["Login Page<br/>/login"]
+
+    DASH_GROUP --> DLAYOUT["Dashboard Layout"]
+    DLAYOUT --> SIDEBAR["Sidebar<br/>(Collapsible, Role-filtered)"]
+    DLAYOUT --> HEADER["Header<br/>(User menu, Theme toggle)"]
+    DLAYOUT --> MAIN["Main Content Area"]
+
+    MAIN --> PH["PageHeader<br/>(Title + Actions)"]
+    MAIN --> SC["StatsCard Grid<br/>(Key Metrics)"]
+    MAIN --> TABS["Tabs<br/>(Data Categories)"]
+    TABS --> CARD["Card Container"]
+    CARD --> TABLE["Data Table<br/>(TanStack)"]
+    CARD --> FORM["Forms<br/>(React Hook Form + Zod)"]
+    MAIN --> DIALOG["Dialogs<br/>(Create/Edit/Confirm)"]
+
+    style ROOT fill:#1e1b4b,stroke:#3b82f6,color:#f1f5f9
+    style DLAYOUT fill:#172554,stroke:#3b82f6,color:#f1f5f9
+    style SIDEBAR fill:#14532d,stroke:#10b981,color:#f1f5f9
+    style TABLE fill:#172554,stroke:#8b5cf6,color:#f1f5f9
+            </div>
+        </div>
+        <div class="diagram-container">
+            <h3>Standard Page Pattern (Every Module)</h3>
+            <div class="grid-2">
+                <div>
+                    <div class="mermaid">
+flowchart TB
+    A["'use client'"] --> B["State Setup<br/>(useState, useEffect)"]
+    B --> C["Parallel Data Fetch<br/>(Promise.all)"]
+    C --> D["Render UI"]
+    D --> E["PageHeader<br/>(Title + New Button)"]
+    E --> F["StatsCard Row<br/>(4 metric cards)"]
+    F --> G["Tabs<br/>(Categories)"]
+    G --> H["Data Table<br/>(Search + Filters)"]
+    H --> I["Pagination"]
+
+    style A fill:#172554,stroke:#3b82f6,color:#f1f5f9
+    style D fill:#14532d,stroke:#10b981,color:#f1f5f9
+                    </div>
+                </div>
+                <div>
+                    <div class="card" style="height: 100%;">
+                        <h4 style="color: var(--accent-cyan); margin-bottom: 12px;">UI Components Used</h4>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <span class="tag bg-blue">Button</span>
+                            <span class="tag bg-green">Card</span>
+                            <span class="tag bg-purple">Dialog</span>
+                            <span class="tag bg-orange">Select</span>
+                            <span class="tag bg-red">Tabs</span>
+                            <span class="tag bg-cyan">Table</span>
+                            <span class="tag bg-pink">Input</span>
+                            <span class="tag bg-blue">Badge</span>
+                            <span class="tag bg-green">DropdownMenu</span>
+                            <span class="tag bg-purple">AlertDialog</span>
+                            <span class="tag bg-orange">Tooltip</span>
+                            <span class="tag bg-red">ScrollArea</span>
+                            <span class="tag bg-cyan">Popover</span>
+                            <span class="tag bg-pink">Switch</span>
+                            <span class="tag bg-blue">Avatar</span>
+                            <span class="tag bg-green">Separator</span>
+                            <span class="tag bg-purple">Label</span>
+                            <span class="tag bg-orange">Textarea</span>
+                        </div>
+                        <h4 style="color: var(--accent-cyan); margin-top: 20px; margin-bottom: 12px;">Shared Components</h4>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <span class="tag bg-blue">PageHeader</span>
+                            <span class="tag bg-green">StatsCard</span>
+                            <span class="tag bg-purple">SearchInput</span>
+                            <span class="tag bg-orange">StatusBadge</span>
+                            <span class="tag bg-red">EmptyState</span>
+                            <span class="tag bg-cyan">ConfirmDialog</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. RBAC Matrix -->
+    <div class="section" id="rbac">
+        <div class="section-header">
+            <div class="section-number" style="background: var(--gradient-1);">7</div>
+            <h2>RBAC Permission Matrix</h2>
+        </div>
+        <div class="diagram-container" style="overflow-x: auto;">
+            <h3>Role vs Module Access</h3>
+            <table class="rbac-table">
+                <thead>
+                    <tr>
+                        <th>Module</th>
+                        <th>Admin</th>
+                        <th>Doctor</th>
+                        <th>Nurse</th>
+                        <th>Receptionist</th>
+                        <th>Pharmacist</th>
+                        <th>Lab Tech</th>
+                        <th>Radiologist</th>
+                        <th>Accountant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Patients</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td></tr>
+                    <tr><td>Appointments</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
+                    <tr><td>OPD</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
+                    <tr><td>IPD</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
+                    <tr><td>Billing</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="check">&#10003;</td></tr>
+                    <tr><td>Pharmacy</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
+                    <tr><td>Laboratory</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
+                    <tr><td>Radiology</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td></tr>
+                    <tr><td>Inventory</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="check">&#10003;</td></tr>
+                    <tr><td>HR & Payroll</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="check">&#10003;</td></tr>
+                    <tr><td>Reports</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="check">&#10003;</td></tr>
+                    <tr><td>Settings</td><td class="check">&#10003;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td><td class="cross">&#10007;</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 8. All Modules -->
+    <div class="section" id="modules">
+        <div class="section-header">
+            <div class="section-number" style="background: var(--gradient-2);">8</div>
+            <h2>All 26 Modules</h2>
+        </div>
+        <div class="grid-4">
+            <div class="module-card top-blue"><div class="module-icon">&#128100;</div><div class="module-name">Patient Management</div><div class="module-detail">Registration, search, medical history</div><div class="module-stats"><span>4 pages</span><span>3 models</span></div></div>
+            <div class="module-card top-green"><div class="module-icon">&#128197;</div><div class="module-name">Appointments</div><div class="module-detail">Scheduling, slot management</div><div class="module-stats"><span>3 pages</span><span>1 model</span></div></div>
+            <div class="module-card top-purple"><div class="module-icon">&#129658;</div><div class="module-name">OPD</div><div class="module-detail">Consultations, vitals, queue</div><div class="module-stats"><span>4 pages</span><span>2 models</span></div></div>
+            <div class="module-card top-cyan"><div class="module-icon">&#128715;</div><div class="module-name">IPD</div><div class="module-detail">Admissions, beds, nursing, wards</div><div class="module-stats"><span>5 pages</span><span>5 models</span></div></div>
+            <div class="module-card top-red"><div class="module-icon">&#128680;</div><div class="module-name">Emergency / ER</div><div class="module-detail">Triage, walk-in, disposition</div><div class="module-stats"><span>3 pages</span><span>1 model</span></div></div>
+            <div class="module-card top-orange"><div class="module-icon">&#9986;</div><div class="module-name">Surgery / OT</div><div class="module-detail">WHO checklist, theatres, teams</div><div class="module-stats"><span>3 pages</span><span>4 models</span></div></div>
+            <div class="module-card top-pink"><div class="module-icon">&#128151;</div><div class="module-name">EMR</div><div class="module-detail">Electronic medical records</div><div class="module-stats"><span>1 page</span><span>1 model</span></div></div>
+            <div class="module-card top-blue"><div class="module-icon">&#128176;</div><div class="module-name">Billing</div><div class="module-detail">Invoices, payments, refunds</div><div class="module-stats"><span>3 pages</span><span>3 models</span></div></div>
+            <div class="module-card top-green"><div class="module-icon">&#128138;</div><div class="module-name">Pharmacy</div><div class="module-detail">Drugs, prescriptions, dispense</div><div class="module-stats"><span>4 pages</span><span>4 models</span></div></div>
+            <div class="module-card top-purple"><div class="module-icon">&#128300;</div><div class="module-name">Laboratory</div><div class="module-detail">Tests, orders, results</div><div class="module-stats"><span>2 pages</span><span>3 models</span></div></div>
+            <div class="module-card top-cyan"><div class="module-icon">&#128225;</div><div class="module-name">Radiology</div><div class="module-detail">Modalities, imaging, reports</div><div class="module-stats"><span>2 pages</span><span>4 models</span></div></div>
+            <div class="module-card top-red"><div class="module-icon">&#129656;</div><div class="module-name">Blood Bank</div><div class="module-detail">Donors, inventory, requests, issuance</div><div class="module-stats"><span>3 pages</span><span>5 models</span></div></div>
+            <div class="module-card top-orange"><div class="module-icon">&#128203;</div><div class="module-name">Queue / Token</div><div class="module-detail">Live board, multi-service, call next</div><div class="module-stats"><span>1 page</span><span>2 models</span></div></div>
+            <div class="module-card top-pink"><div class="module-icon">&#127909;</div><div class="module-name">Telemedicine</div><div class="module-detail">Video consult sessions</div><div class="module-stats"><span>2 pages</span><span>1 model</span></div></div>
+            <div class="module-card top-blue"><div class="module-icon">&#127869;</div><div class="module-name">Dietary</div><div class="module-detail">Diet plans, meal orders, macros</div><div class="module-stats"><span>2 pages</span><span>2 models</span></div></div>
+            <div class="module-card top-green"><div class="module-icon">&#129516;</div><div class="module-name">CSSD</div><div class="module-detail">Sterilization batches, instruments</div><div class="module-stats"><span>3 pages</span><span>2 models</span></div></div>
+            <div class="module-card top-purple"><div class="module-icon">&#128657;</div><div class="module-name">Ambulance</div><div class="module-detail">Fleet, dispatch, GPS tracking</div><div class="module-stats"><span>3 pages</span><span>2 models</span></div></div>
+            <div class="module-card top-cyan"><div class="module-icon">&#127947;</div><div class="module-name">Physiotherapy</div><div class="module-detail">Treatment plans, sessions, progress</div><div class="module-stats"><span>2 pages</span><span>2 models</span></div></div>
+            <div class="module-card top-red"><div class="module-icon">&#128196;</div><div class="module-name">Documents</div><div class="module-detail">Upload, search, categories</div><div class="module-stats"><span>1 page</span><span>1 model</span></div></div>
+            <div class="module-card top-orange"><div class="module-icon">&#128737;</div><div class="module-name">Insurance / TPA</div><div class="module-detail">Claims, providers, policies, pre-auth</div><div class="module-stats"><span>5 pages</span><span>5 models</span></div></div>
+            <div class="module-card top-pink"><div class="module-icon">&#128230;</div><div class="module-name">Inventory</div><div class="module-detail">Items, suppliers, purchase orders</div><div class="module-stats"><span>2 pages</span><span>6 models</span></div></div>
+            <div class="module-card top-blue"><div class="module-icon">&#127970;</div><div class="module-name">HR & Payroll</div><div class="module-detail">Employees, attendance, leave, payslips</div><div class="module-stats"><span>5 pages</span><span>4 models</span></div></div>
+            <div class="module-card top-green"><div class="module-icon">&#128202;</div><div class="module-name">Reports</div><div class="module-detail">Financial, patient analytics</div><div class="module-stats"><span>3 pages</span><span>aggregation</span></div></div>
+            <div class="module-card top-purple"><div class="module-icon">&#128200;</div><div class="module-name">MIS Analytics</div><div class="module-detail">Management information system</div><div class="module-stats"><span>1 page</span><span>aggregation</span></div></div>
+            <div class="module-card top-cyan"><div class="module-icon">&#128736;</div><div class="module-name">Settings</div><div class="module-detail">Hospital config, users, roles</div><div class="module-stats"><span>4 pages</span><span>2 models</span></div></div>
+            <div class="module-card top-orange"><div class="module-icon">&#128290;</div><div class="module-name">Dashboard</div><div class="module-detail">Overview stats & quick actions</div><div class="module-stats"><span>1 page</span><span>aggregation</span></div></div>
+        </div>
+    </div>
+
+    <!-- 9. Data Flow -->
+    <div class="section" id="data-flow">
+        <div class="section-header">
+            <div class="section-number" style="background: var(--gradient-3);">9</div>
+            <h2>Data Flow Examples</h2>
+        </div>
+        <div class="diagram-container">
+            <h3>Patient Registration Flow</h3>
+            <div class="mermaid">
+sequenceDiagram
+    participant R as Receptionist
+    participant UI as Registration Form
+    participant ZOD as Zod Validator
+    participant API as POST /api/patients
+    participant GEN as ID Generator
+    participant DB as PostgreSQL
+
+    R->>UI: Fill patient details
+    UI->>ZOD: Client-side validate
+    ZOD-->>UI: Valid
+
+    UI->>API: POST {firstName, lastName, dob, gender, phone...}
+    API->>API: requireAuth("patients", "create")
+    API->>ZOD: Server-side validate
+    API->>GEN: generateMRN()
+    GEN-->>API: MRN-20260227-0001
+
+    API->>DB: prisma.patient.create()
+    DB-->>API: Patient record
+
+    API-->>UI: 201 {success: true, data: patient}
+    UI-->>R: Redirect to /patients/[id]
+            </div>
+        </div>
+        <div class="diagram-container">
+            <h3>OPD Consultation Workflow</h3>
+            <div class="mermaid">
+sequenceDiagram
+    participant P as Patient
+    participant REC as Reception
+    participant Q as Queue System
+    participant DOC as Doctor
+    participant PH as Pharmacy
+    participant LAB as Laboratory
+    participant BIL as Billing
+
+    P->>REC: Arrive at hospital
+    REC->>REC: Check-in appointment
+    REC->>Q: Generate token (TKN-xxx)
+
+    Q-->>P: Display token on screen
+    Note over Q: Auto-refresh every 10s
+
+    Q->>DOC: Call next patient
+    DOC->>DOC: Record vitals (BP, temp, SpO2...)
+    DOC->>DOC: Create consultation
+    DOC->>DOC: Set diagnosis + ICD codes
+
+    par Parallel Orders
+        DOC->>PH: Create prescription
+        DOC->>LAB: Order lab tests
+    end
+
+    DOC->>Q: Mark token COMPLETED
+
+    P->>LAB: Provide samples
+    LAB->>LAB: Run tests + enter results
+
+    P->>PH: Collect medicines
+    PH->>PH: Dispense prescription
+
+    P->>BIL: Pay at billing
+    BIL->>BIL: Generate invoice
+    BIL-->>P: Receipt
+            </div>
+        </div>
+        <div class="diagram-container">
+            <h3>IPD Admission to Discharge</h3>
+            <div class="mermaid">
+flowchart TB
+    A["Doctor orders admission"] --> B["Check bed availability"]
+    B --> C["Assign bed<br/>(Ward + Bed Number)"]
+    C --> D["Create admission record<br/>(ADM-xxx)"]
+    D --> E["Admission Status: ADMITTED"]
+
+    E --> F["Daily Activities"]
+    F --> G["Nursing: Vitals monitoring"]
+    F --> H["Doctor: Progress notes"]
+    F --> I["Doctor: Orders (meds, labs, radiology)"]
+    F --> J["Pharmacy: Dispense medications"]
+    F --> K["Lab: Process orders"]
+
+    G --> F
+    H --> F
+    I --> F
+
+    F --> L{"Ready for discharge?"}
+    L -->|No| F
+    L -->|Yes| M["Create discharge summary"]
+    M --> N["Generate final invoice"]
+    N --> O["Process payment"]
+    O --> P["Release bed<br/>(Status: AVAILABLE)"]
+    P --> Q["Admission Status: DISCHARGED"]
+
+    style A fill:#172554,stroke:#3b82f6,color:#f1f5f9
+    style E fill:#14532d,stroke:#10b981,color:#f1f5f9
+    style Q fill:#14532d,stroke:#10b981,color:#f1f5f9
+    style F fill:#1e1b4b,stroke:#8b5cf6,color:#f1f5f9
+            </div>
+        </div>
+        <div class="diagram-container">
+            <h3>Emergency Visit Flow</h3>
+            <div class="mermaid">
+flowchart LR
+    A["Patient Arrives<br/>(Ambulance / Walk-in)"] --> B["Triage Assessment"]
+    B --> C{"Triage Level"}
+    C -->|"RESUSCITATION<br/>(Red)"| D["Immediate Treatment"]
+    C -->|"EMERGENT<br/>(Orange)"| E["Treat within 10 min"]
+    C -->|"URGENT<br/>(Yellow)"| F["Treat within 30 min"]
+    C -->|"LESS URGENT<br/>(Green)"| G["Treat within 60 min"]
+    C -->|"NON URGENT<br/>(Blue)"| H["Treat within 120 min"]
+
+    D --> I["Record Vitals + Treatment"]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+
+    I --> J{"Disposition"}
+    J -->|Admit| K["IPD Admission"]
+    J -->|Discharge| L["Discharge Home"]
+    J -->|Transfer| M["Transfer to Other Facility"]
+    J -->|Surgery| N["Emergency Surgery"]
+
+    style D fill:#431407,stroke:#ef4444,color:#f1f5f9
+    style E fill:#431407,stroke:#f59e0b,color:#f1f5f9
+    style F fill:#432e07,stroke:#f59e0b,color:#f1f5f9
+    style G fill:#14532d,stroke:#10b981,color:#f1f5f9
+    style H fill:#172554,stroke:#3b82f6,color:#f1f5f9
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. Docker -->
+    <div class="section" id="docker">
+        <div class="section-header">
+            <div class="section-number" style="background: var(--gradient-1);">10</div>
+            <h2>Docker & Deployment</h2>
+        </div>
+        <div class="diagram-container">
+            <h3>Docker Compose Architecture</h3>
+            <div class="docker-visual">
+                <div class="docker-service border-blue" style="border-color: var(--accent-blue);">
+                    <div class="service-icon">&#128024;</div>
+                    <div class="service-name">his-database</div>
+                    <div class="service-desc">PostgreSQL 16 Alpine<br/>Persistent volume: his_pgdata<br/>Health check: pg_isready</div>
+                    <div class="service-port bg-blue">Port 9004:5432</div>
+                </div>
+                <div class="docker-arrow">&#8594;</div>
+                <div class="docker-service border-green" style="border-color: var(--accent-green);">
+                    <div class="service-icon">&#9881;</div>
+                    <div class="service-name">his-migrate</div>
+                    <div class="service-desc">One-shot container<br/>prisma db push<br/>prisma db seed<br/>Exits after completion</div>
+                    <div class="service-port bg-green">No port (internal)</div>
+                </div>
+                <div class="docker-arrow">&#8594;</div>
+                <div class="docker-service border-purple" style="border-color: var(--accent-purple);">
+                    <div class="service-icon">&#9654;</div>
+                    <div class="service-name">his-app</div>
+                    <div class="service-desc">Next.js 16 Standalone<br/>Multi-stage build (4 stages)<br/>Non-root user: nextjs</div>
+                    <div class="service-port bg-purple">Port 9003:3000</div>
+                </div>
+            </div>
+        </div>
+        <div class="diagram-container">
+            <h3>Multi-Stage Docker Build</h3>
+            <div class="mermaid">
+flowchart LR
+    S1["Stage 1: base<br/>node:20-alpine"] --> S2["Stage 2: deps<br/>npm ci<br/>prisma generate"]
+    S2 --> S3["Stage 3: builder<br/>COPY source<br/>next build"]
+    S3 --> S4["Stage 4: runner<br/>COPY standalone<br/>COPY static<br/>node server.js"]
+
+    S4 --> IMG["Final Image<br/>~100MB<br/>Non-root user<br/>PORT 3000"]
+
+    style S1 fill:#172554,stroke:#3b82f6,color:#f1f5f9
+    style S2 fill:#1e1b4b,stroke:#8b5cf6,color:#f1f5f9
+    style S3 fill:#14532d,stroke:#10b981,color:#f1f5f9
+    style S4 fill:#431407,stroke:#f59e0b,color:#f1f5f9
+    style IMG fill:#14532d,stroke:#10b981,color:#f1f5f9
+            </div>
+        </div>
+        <div class="diagram-container">
+            <h3>Startup Sequence</h3>
+            <div class="mermaid">
+sequenceDiagram
+    participant DC as docker compose up
+    participant DB as his-database
+    participant MIG as his-migrate
+    participant APP as his-app
+
+    DC->>DB: Start PostgreSQL
+    DB->>DB: Initialize data directory
+    DB->>DB: Health check (pg_isready)
+
+    DB-->>DC: Healthy
+
+    par Parallel Start
+        DC->>MIG: Start migration
+        DC->>APP: Start app
+    end
+
+    MIG->>DB: prisma db push (sync schema)
+    MIG->>DB: prisma db seed (insert data)
+    MIG-->>DC: Exit (success)
+
+    APP->>APP: node server.js
+    APP->>DB: Connect (DATABASE_URL)
+    APP-->>DC: Listening on :3000
+
+    Note over DC,APP: App available at http://localhost:9003
+            </div>
+        </div>
+    </div>
+
+    <!-- 11. Key Design Patterns -->
+    <div class="section" id="patterns">
+        <div class="section-header">
+            <div class="section-number" style="background: var(--gradient-2);">11</div>
+            <h2>Key Design Patterns</h2>
+        </div>
+        <div class="pattern-grid">
+            <div class="pattern-card border-blue" style="border-left-color: var(--accent-blue);">
+                <h4>Middleware-First RBAC</h4>
+                <p>All routes protected at network boundary before reaching handlers. Double-checked at API level with requireAuth().</p>
+            </div>
+            <div class="pattern-card border-green" style="border-left-color: var(--accent-green);">
+                <h4>Soft Deletes</h4>
+                <p>All major entities use deletedAt: DateTime? instead of hard deletes. Every query includes { deletedAt: null } filter.</p>
+            </div>
+            <div class="pattern-card border-purple" style="border-left-color: var(--accent-purple);">
+                <h4>Date-Based Sequential IDs</h4>
+                <p>Human-readable IDs: PREFIX-YYYYMMDD-NNNN. 16 generators for different entities (MRN, APT, INV, etc.)</p>
+            </div>
+            <div class="pattern-card border-orange" style="border-left-color: var(--accent-orange);">
+                <h4>Singleton Prisma Client</h4>
+                <p>Global caching prevents connection pool exhaustion during dev hot reload. Single instance in production.</p>
+            </div>
+            <div class="pattern-card border-red" style="border-left-color: var(--accent-red);">
+                <h4>Standardized API Responses</h4>
+                <p>All endpoints return { success, data, error?, meta? }. Helper functions enforce consistency across 29+ routes.</p>
+            </div>
+            <div class="pattern-card border-cyan" style="border-left-color: var(--accent-cyan);">
+                <h4>Dual Zod Validation</h4>
+                <p>Client-side (React Hook Form + Zod) + Server-side (Zod in API routes). Shared schemas for type safety.</p>
+            </div>
+            <div class="pattern-card border-pink" style="border-left-color: var(--accent-pink);">
+                <h4>Parallel Data Fetching</h4>
+                <p>Promise.all() used in every page to fetch multiple resources simultaneously. Reduces page load time.</p>
+            </div>
+            <div class="pattern-card border-blue" style="border-left-color: var(--accent-blue);">
+                <h4>Component Composition</h4>
+                <p>Consistent page structure: PageHeader + StatsCard + Tabs + Card + Table. Reusable across all 26 modules.</p>
+            </div>
+        </div>
+
+        <div class="diagram-container" style="margin-top: 24px;">
+            <h3>Security Architecture</h3>
+            <div class="mermaid">
+graph TB
+    subgraph DEFENSE["Defense in Depth"]
+        L1["Layer 1: Middleware<br/>Route Protection + RBAC"]
+        L2["Layer 2: API Auth<br/>requireAuth() per endpoint"]
+        L3["Layer 3: Input Validation<br/>Zod schemas (client + server)"]
+        L4["Layer 4: Database<br/>Prisma type safety + constraints"]
+        L5["Layer 5: Password<br/>bcryptjs hashing"]
+        L6["Layer 6: Session<br/>JWT (stateless, signed)"]
+        L7["Layer 7: Docker<br/>Non-root user, Alpine base"]
+    end
+
+    L1 --> L2 --> L3 --> L4
+    L5 -.-> L1
+    L6 -.-> L1
+    L7 -.-> L4
+
+    style DEFENSE fill:#0f172a,stroke:#3b82f6,color:#f1f5f9
+    style L1 fill:#172554,stroke:#3b82f6,color:#f1f5f9
+    style L2 fill:#172554,stroke:#3b82f6,color:#f1f5f9
+    style L3 fill:#1e1b4b,stroke:#8b5cf6,color:#f1f5f9
+    style L4 fill:#14532d,stroke:#10b981,color:#f1f5f9
+    style L5 fill:#431407,stroke:#f59e0b,color:#f1f5f9
+    style L6 fill:#431407,stroke:#f59e0b,color:#f1f5f9
+    style L7 fill:#14532d,stroke:#10b981,color:#f1f5f9
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; padding: 40px 0; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.85rem;">
+        <p>HIS System Architecture Blueprint | Generated February 27, 2026</p>
+        <p style="margin-top: 4px;">26 Modules &middot; 71 Database Models &middot; 73 Routes &middot; 29+ API Endpoints &middot; 8 User Roles</p>
+    </div>
+
+</div>
+
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+        themeVariables: {
+            primaryColor: '#3b82f6',
+            primaryTextColor: '#f1f5f9',
+            primaryBorderColor: '#334155',
+            lineColor: '#64748b',
+            secondaryColor: '#1e1b4b',
+            tertiaryColor: '#172554',
+            background: '#1e293b',
+            mainBkg: '#1e293b',
+            nodeBorder: '#334155',
+            clusterBkg: '#0f172a',
+            clusterBorder: '#334155',
+            titleColor: '#f1f5f9',
+            edgeLabelBackground: '#1e293b',
+            actorBkg: '#172554',
+            actorBorder: '#3b82f6',
+            actorTextColor: '#f1f5f9',
+            actorLineColor: '#334155',
+            signalColor: '#f1f5f9',
+            signalTextColor: '#f1f5f9',
+            labelBoxBkgColor: '#1e293b',
+            labelBoxBorderColor: '#334155',
+            labelTextColor: '#f1f5f9',
+            loopTextColor: '#94a3b8',
+            noteBkgColor: '#1e1b4b',
+            noteTextColor: '#f1f5f9',
+            noteBorderColor: '#8b5cf6',
+            sectionBkgColor: '#172554',
+            altSectionBkgColor: '#0f172a',
+            sectionBkgColor2: '#1e1b4b',
+            taskBkgColor: '#172554',
+            taskTextColor: '#f1f5f9',
+            pie1: '#3b82f6',
+            pie2: '#10b981',
+            pie3: '#8b5cf6',
+            pie4: '#f59e0b',
+            pie5: '#ef4444',
+            pie6: '#06b6d4',
+            pie7: '#ec4899',
+            pie8: '#14b8a6',
+            pie9: '#a855f7',
+            pie10: '#f97316',
+            pie11: '#6366f1',
+            pie12: '#22c55e'
+        },
+        flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+        sequence: { useMaxWidth: true, mirrorActors: false, messageMargin: 40 },
+        er: { useMaxWidth: true },
+        pie: { useMaxWidth: true }
+    });
+</script>
+
+</body>
+</html>
