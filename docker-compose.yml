@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  medbridge:
+    build: .
+    container_name: medbridge-connect
+    ports:
+      - "3456:3000"
+    volumes:
+      - medbridge-data:/app/data
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - AEGISFORGE_URL=http://host.docker.internal:8000
+      - HIS_URL=http://host.docker.internal:9003
+      - N8N_URL=http://host.docker.internal:5678
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  medbridge-data:
