@@ -91,7 +91,7 @@ export default function PhysiotherapyPage() {
                                 style={{ width: `${plan.totalSessions ? ((plan.completedSessions as number) / (plan.totalSessions as number)) * 100 : 0}%` }}
                               />
                             </div>
-                            <span className="text-xs">{plan.completedSessions as number}/{plan.totalSessions || "?"}</span>
+                            <span className="text-xs">{plan.completedSessions as number}/{(plan.totalSessions as number | undefined) ?? "?"}</span>
                           </div>
                         </TableCell>
                         <TableCell>{new Date(plan.startDate as string).toLocaleDateString()}</TableCell>
@@ -144,11 +144,11 @@ export default function PhysiotherapyPage() {
                           ) : "-"}
                         </TableCell>
                         <TableCell>
-                          {session.outcome && (
+                          {session.outcome ? (
                             <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${session.outcome === "IMPROVED" ? "bg-green-100 text-green-800" : session.outcome === "DECLINED" ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800"}`}>
                               {session.outcome as string}
                             </span>
-                          )}
+                          ) : null}
                         </TableCell>
                         <TableCell><StatusBadge status={session.status as string} /></TableCell>
                       </TableRow>

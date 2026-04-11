@@ -93,7 +93,7 @@ export default function QueueManagementPage() {
               <CardContent className="pt-6 text-center">
                 <p className="text-sm text-muted-foreground">{token.serviceType as string}</p>
                 <p className="text-6xl font-bold text-blue-600 my-4">{token.tokenNo as number}</p>
-                <p className="text-sm">{token.patientName || `${(token.patient as Record<string, string>)?.firstName || ""} ${(token.patient as Record<string, string>)?.lastName || ""}`.trim() || "Walk-in"}</p>
+                <p className="text-sm">{(token.patientName as string | undefined) || `${(token.patient as Record<string, string>)?.firstName || ""} ${(token.patient as Record<string, string>)?.lastName || ""}`.trim() || "Walk-in"}</p>
                 <p className="text-xs text-muted-foreground mt-1">{token.counterNo ? `Counter ${token.counterNo}` : ""}</p>
                 <div className="flex gap-2 mt-4 justify-center">
                   <Button size="sm" onClick={() => handleComplete(token.id as string)}>Complete</Button>
@@ -138,7 +138,7 @@ export default function QueueManagementPage() {
                       {filteredTokens.sort((a, b) => (a.tokenNo as number) - (b.tokenNo as number)).map((token) => (
                         <TableRow key={token.id as string}>
                           <TableCell className="font-bold text-lg">{token.tokenNo as number}</TableCell>
-                          <TableCell>{token.patientName || `${(token.patient as Record<string, string>)?.firstName || ""} ${(token.patient as Record<string, string>)?.lastName || ""}`.trim() || "Walk-in"}</TableCell>
+                          <TableCell>{(token.patientName as string | undefined) || `${(token.patient as Record<string, string>)?.firstName || ""} ${(token.patient as Record<string, string>)?.lastName || ""}`.trim() || "Walk-in"}</TableCell>
                           <TableCell>
                             <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${token.priority === "EMERGENCY" ? "bg-red-100 text-red-800" : token.priority === "PRIORITY" ? "bg-orange-100 text-orange-800" : "bg-gray-100 text-gray-800"}`}>
                               {token.priority as string}

@@ -1,0 +1,205 @@
+# ===========================================
+# HIS-EMR Platform — Build & Push Images
+# ===========================================
+# Triggered manually or on GitHub source changes
+# Builds Docker images from GitHub branches and pushes to GHCR
+
+trigger: none
+
+parameters:
+- name: environment
+  displayName: Target Environment
+  type: string
+  default: dev
+  values:
+  - dev
+  - training
+
+- name: buildHIS
+  displayName: Build HIS-EMR?
+  type: boolean
+  default: true
+
+- name: buildAegis
+  displayName: Build AegisForge?
+  type: boolean
+  default: true
+
+- name: buildMedBridge
+  displayName: Build MedBridge Connect?
+  type: boolean
+  default: true
+
+variables:
+- name: GITHUB_REPO
+  value: 'https://github.com/anup1903/HIS-EMR.git'
+- name: REGISTRY
+  value: 'ghcr.io/anup1903'
+- name: IMAGE_TAG
+  value: '${{ parameters.environment }}'
+
+stages:
+# ============================================================
+# Stage 1: Build Docker Images
+# ============================================================
+- stage: Build
+  displayName: 'Build Docker Images'
+  pool:
+    vmImage: 'ubuntu-latest'
+  jobs:
+
+  # --- HIS-EMR Image ---
+  - job: BuildHIS
+    displayName: 'Build HIS-EMR'
+    condition: eq(${{ parameters.buildHIS }}, true)
+    steps:
+    - checkout: none
+    - script: |
+        git clone --branch feat/initial-setup --single-branch $(GITHUB_REPO) his-emr
+      displayName: 'Clone HIS-EMR (feat/initial-setup)'
+      env:
+        GITHUB_TOKEN: $(GITHUB_PAT)
+
+    - task: Docker@2
+      displayName: 'Build HIS-EMR image'
+      inputs:
+        command: build
+        Dockerfile: 'his-emr/Dockerfile'
+        buildContext: 'his-emr'
+        tags: |
+          $(REGISTRY)/his-emr:$(IMAGE_TAG)
+          $(REGISTRY)/his-emr:$(Build.BuildId)
+
+    - script: |
+        echo $(GHCR_TOKEN) | docker login ghcr.io -u anup1903 --password-stdin
+        docker push $(REGISTRY)/his-emr:$(IMAGE_TAG)
+        docker push $(REGISTRY)/his-emr:$(Build.BuildId)
+      displayName: 'Push HIS-EMR to GHCR'
+      env:
+        GHCR_TOKEN: $(GHCR_TOKEN)
+
+  # --- AegisForge API Image ---
+  - job: BuildAegisAPI
+    displayName: 'Build AegisForge API'
+    condition: eq(${{ parameters.buildAegis }}, true)
+    steps:
+    - checkout: none
+    - script: |
+        git clone --branch aegisforge-healthcare --single-branch $(GITHUB_REPO) aegisforge
+      displayName: 'Clone AegisForge (aegisforge-healthcare)'
+      env:
+        GITHUB_TOKEN: $(GITHUB_PAT)
+
+    - task: Docker@2
+      displayName: 'Build AegisForge API image'
+      inputs:
+        command: build
+        Dockerfile: 'aegisforge/Dockerfile'
+        buildContext: 'aegisforge'
+        tags: |
+          $(REGISTRY)/aegisforge-api:$(IMAGE_TAG)
+          $(REGISTRY)/aegisforge-api:$(Build.BuildId)
+
+    - script: |
+        echo $(GHCR_TOKEN) | docker login ghcr.io -u anup1903 --password-stdin
+        docker push $(REGISTRY)/aegisforge-api:$(IMAGE_TAG)
+        docker push $(REGISTRY)/aegisforge-api:$(Build.BuildId)
+      displayName: 'Push AegisForge API to GHCR'
+      env:
+        GHCR_TOKEN: $(GHCR_TOKEN)
+
+  # --- AegisForge Frontend Image ---
+  - job: BuildAegisFrontend
+    displayName: 'Build AegisForge Frontend'
+    condition: eq(${{ parameters.buildAegis }}, true)
+    steps:
+    - checkout: none
+    - script: |
+        git clone --branch aegisforge-healthcare --single-branch $(GITHUB_REPO) aegisforge
+      displayName: 'Clone AegisForge (aegisforge-healthcare)'
+      env:
+        GITHUB_TOKEN: $(GITHUB_PAT)
+
+    - task: Docker@2
+      displayName: 'Build AegisForge Frontend image'
+      inputs:
+        command: build
+        Dockerfile: 'aegisforge/frontend/Dockerfile'
+        buildContext: 'aegisforge/frontend'
+        tags: |
+          $(REGISTRY)/aegisforge-frontend:$(IMAGE_TAG)
+          $(REGISTRY)/aegisforge-frontend:$(Build.BuildId)
+
+    - script: |
+        echo $(GHCR_TOKEN) | docker login ghcr.io -u anup1903 --password-stdin
+        docker push $(REGISTRY)/aegisforge-frontend:$(IMAGE_TAG)
+        docker push $(REGISTRY)/aegisforge-frontend:$(Build.BuildId)
+      displayName: 'Push AegisForge Frontend to GHCR'
+      env:
+        GHCR_TOKEN: $(GHCR_TOKEN)
+
+  # --- MedBridge Connect Image ---
+  - job: BuildMedBridge
+    displayName: 'Build MedBridge Connect'
+    condition: eq(${{ parameters.buildMedBridge }}, true)
+    steps:
+    - checkout: none
+    - script: |
+        git clone --branch EMR-EHR --single-branch $(GITHUB_REPO) medbridge
+      displayName: 'Clone MedBridge (EMR-EHR)'
+      env:
+        GITHUB_TOKEN: $(GITHUB_PAT)
+
+    - task: Docker@2
+      displayName: 'Build MedBridge image'
+      inputs:
+        command: build
+        Dockerfile: 'medbridge/Dockerfile'
+        buildContext: 'medbridge'
+        tags: |
+          $(REGISTRY)/medbridge-connect:$(IMAGE_TAG)
+          $(REGISTRY)/medbridge-connect:$(Build.BuildId)
+
+    - script: |
+        echo $(GHCR_TOKEN) | docker login ghcr.io -u anup1903 --password-stdin
+        docker push $(REGISTRY)/medbridge-connect:$(IMAGE_TAG)
+        docker push $(REGISTRY)/medbridge-connect:$(Build.BuildId)
+      displayName: 'Push MedBridge to GHCR'
+      env:
+        GHCR_TOKEN: $(GHCR_TOKEN)
+
+# ============================================================
+# Stage 2: Deploy to VM
+# ============================================================
+- stage: Deploy
+  displayName: 'Deploy to ${{ parameters.environment }} VM'
+  dependsOn: Build
+  pool:
+    vmImage: 'ubuntu-latest'
+  jobs:
+  - deployment: DeployToVM
+    displayName: 'Deploy to ${{ parameters.environment }}'
+    environment: 'HIS-EMR-${{ parameters.environment }}'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+
+          - task: SSH@0
+            displayName: 'Deploy via SSH'
+            inputs:
+              sshEndpoint: 'AegisForge-VM-${{ parameters.environment }}'
+              runOptions: 'inline'
+              inline: |
+                cd /opt/his-emr-platform
+
+                # Pull latest deployment files
+                git pull origin main 2>/dev/null || true
+
+                # Run deployment
+                chmod +x deployment/scripts/deploy.sh
+                GHCR_TOKEN=$(GHCR_TOKEN) ./deployment/scripts/deploy.sh ${{ parameters.environment }}
+
+                echo "Deployment to ${{ parameters.environment }} completed successfully"
+              readyTimeout: '20000'

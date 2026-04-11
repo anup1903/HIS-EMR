@@ -71,8 +71,8 @@ export default function EmergencyVisitDetailPage() {
           <CardHeader><CardTitle>Patient Details</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div><Label className="text-muted-foreground">Name</Label><p className="font-medium">{patientName}</p></div>
-            {visit.walkInAge && <div><Label className="text-muted-foreground">Age</Label><p>{visit.walkInAge as number} years</p></div>}
-            {visit.walkInGender && <div><Label className="text-muted-foreground">Gender</Label><p>{visit.walkInGender as string}</p></div>}
+            {visit.walkInAge ? <div><Label className="text-muted-foreground">Age</Label><p>{visit.walkInAge as number} years</p></div> : null}
+            {visit.walkInGender ? <div><Label className="text-muted-foreground">Gender</Label><p>{visit.walkInGender as string}</p></div> : null}
             <div><Label className="text-muted-foreground">Arrival Mode</Label><p>{(visit.arrivalMode as string)?.replace(/_/g, " ")}</p></div>
             <div><Label className="text-muted-foreground">Arrival Time</Label><p>{new Date(visit.arrivalTime as string).toLocaleString()}</p></div>
           </CardContent>
@@ -86,8 +86,8 @@ export default function EmergencyVisitDetailPage() {
               <p><span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${TRIAGE_COLORS[(visit.triageLevel as string)] || "bg-gray-100 text-gray-800"}`}>{(visit.triageLevel as string)?.replace(/_/g, " ")}</span></p>
             </div>
             <div><Label className="text-muted-foreground">Chief Complaint</Label><p>{visit.chiefComplaint as string}</p></div>
-            {visit.injuryType && <div><Label className="text-muted-foreground">Injury Type</Label><p>{visit.injuryType as string}</p></div>}
-            {visit.consciousnessLevel && <div><Label className="text-muted-foreground">Consciousness (AVPU)</Label><p>{visit.consciousnessLevel as string}</p></div>}
+            {visit.injuryType ? <div><Label className="text-muted-foreground">Injury Type</Label><p>{visit.injuryType as string}</p></div> : null}
+            {visit.consciousnessLevel ? <div><Label className="text-muted-foreground">Consciousness (AVPU)</Label><p>{visit.consciousnessLevel as string}</p></div> : null}
             <div><Label className="text-muted-foreground">Stabilized</Label><p>{visit.isStabilized ? "Yes" : "No"}</p></div>
             <div><Label className="text-muted-foreground">Disposition</Label><p><StatusBadge status={visit.disposition as string} /></p></div>
           </CardContent>

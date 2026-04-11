@@ -148,11 +148,11 @@ export default function DocumentManagementPage() {
                     <TableCell>{doc.uploadedBy as string}</TableCell>
                     <TableCell>{new Date(doc.createdAt as string).toLocaleDateString()}</TableCell>
                     <TableCell>
-                      {doc.filePath && (
+                      {doc.filePath ? (
                         <Button size="sm" variant="ghost" asChild>
                           <a href={doc.filePath as string} target="_blank" rel="noreferrer"><Download className="h-4 w-4" /></a>
                         </Button>
-                      )}
+                      ) : null}
                     </TableCell>
                   </TableRow>
                 ))}

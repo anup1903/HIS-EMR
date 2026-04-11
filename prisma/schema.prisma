@@ -638,6 +638,8 @@ model Payment {
 
   invoice Invoice @relation(fields: [invoiceId], references: [id])
 
+  @@index([invoiceId])
+  @@index([paidAt])
   @@map("payments")
 }
 
@@ -693,6 +695,9 @@ model Prescription {
   items      PrescriptionItem[]
   dispensing Dispensing?
 
+  @@index([patientId])
+  @@index([status])
+  @@index([consultationId])
   @@map("prescriptions")
 }
 

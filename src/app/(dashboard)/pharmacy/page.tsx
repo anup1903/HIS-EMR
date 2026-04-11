@@ -77,7 +77,7 @@ export default function PharmacyPage() {
                         <TableCell className={((drug.stockQuantity as number) <= (drug.reorderLevel as number)) ? "text-red-600 font-bold" : ""}>
                           {drug.stockQuantity as number} {drug.dosageForm as string}
                         </TableCell>
-                        <TableCell>${(drug.unitPrice as number)?.toFixed(2)}</TableCell>
+                        <TableCell>${Number(drug.unitPrice ?? 0).toFixed(2)}</TableCell>
                         <TableCell><StatusBadge status={drug.isActive ? "Active" : "Inactive"} /></TableCell>
                         <TableCell><Button variant="ghost" size="sm" asChild><Link href={`/pharmacy/drugs/${drug.id}`}><Eye className="h-4 w-4" /></Link></Button></TableCell>
                       </TableRow>

@@ -79,7 +79,7 @@ export default function SurgeryDetailPage() {
             <div><Label className="text-muted-foreground">Procedure</Label><p>{surgery.procedureName as string}</p></div>
             <div><Label className="text-muted-foreground">Surgery Type</Label><p>{(surgery.surgeryType as string)?.replace(/_/g, " ")}</p></div>
             <div><Label className="text-muted-foreground">Diagnosis</Label><p>{surgery.diagnosis as string}</p></div>
-            {surgery.laterality && <div><Label className="text-muted-foreground">Laterality</Label><p>{surgery.laterality as string}</p></div>}
+            {surgery.laterality ? <div><Label className="text-muted-foreground">Laterality</Label><p>{surgery.laterality as string}</p></div> : null}
             <div><Label className="text-muted-foreground">Anesthesia</Label><p>{(surgery.anesthesiaType as string)?.replace(/_/g, " ") || "TBD"}</p></div>
           </CardContent>
         </Card>
@@ -93,7 +93,7 @@ export default function SurgeryDetailPage() {
             <div><Label className="text-muted-foreground">Status</Label><p><StatusBadge status={surgery.status as string} /></p></div>
             <div><Label className="text-muted-foreground">Priority</Label><p>{(surgery.priority as string)?.replace(/_/g, " ")}</p></div>
             <div><Label className="text-muted-foreground">Consent</Label><p>{surgery.consentObtained ? "Yes" : "Not yet"}</p></div>
-            {surgery.estimatedDuration && <div><Label className="text-muted-foreground">Est. Duration</Label><p>{surgery.estimatedDuration as number} minutes</p></div>}
+            {surgery.estimatedDuration ? <div><Label className="text-muted-foreground">Est. Duration</Label><p>{surgery.estimatedDuration as number} minutes</p></div> : null}
           </CardContent>
         </Card>
       </div>

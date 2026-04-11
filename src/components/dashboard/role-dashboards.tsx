@@ -32,7 +32,7 @@ export function DoctorQuickActions() {
       { label: "My Appointments", href: "/appointments" },
       { label: "Patient Search", href: "/patients" },
       { label: "Lab Results", href: "/laboratory" },
-      { label: "Write Prescription", href: "/opd/consultations/new" },
+      { label: "Write Prescription", href: "/opd/rx-pad" },
       { label: "Radiology Orders", href: "/radiology" },
     ]} />
   );

@@ -91,18 +91,18 @@ export default function CSSDPage() {
                         <TableCell>{new Date(batch.loadDate as string).toLocaleDateString()}</TableCell>
                         <TableCell>{batch.sterilizationDate ? new Date(batch.sterilizationDate as string).toLocaleDateString() : "-"}</TableCell>
                         <TableCell>
-                          {batch.biIndicator && (
+                          {batch.biIndicator ? (
                             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${batch.biIndicator === "PASS" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
                               {batch.biIndicator as string}
                             </span>
-                          )}
+                          ) : null}
                         </TableCell>
                         <TableCell>
-                          {batch.chemIndicator && (
+                          {batch.chemIndicator ? (
                             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${batch.chemIndicator === "PASS" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
                               {batch.chemIndicator as string}
                             </span>
-                          )}
+                          ) : null}
                         </TableCell>
                         <TableCell>
                           <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STERILIZATION_COLORS[(batch.status as string)] || "bg-gray-100 text-gray-800"}`}>

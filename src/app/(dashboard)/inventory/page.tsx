@@ -76,7 +76,7 @@ export default function InventoryPage() {
                           {item.currentStock as number} {item.unit as string}
                         </TableCell>
                         <TableCell>{item.reorderLevel as number}</TableCell>
-                        <TableCell>${(item.unitCost as number)?.toFixed(2)}</TableCell>
+                        <TableCell>${Number(item.unitCost ?? 0).toFixed(2)}</TableCell>
                         <TableCell>
                           <span className={`px-2 py-1 rounded text-xs ${(item.currentStock as number) <= (item.reorderLevel as number) ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
                             {(item.currentStock as number) <= (item.reorderLevel as number) ? "Low Stock" : "In Stock"}

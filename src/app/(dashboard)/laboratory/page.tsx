@@ -103,7 +103,7 @@ export default function LaboratoryPage() {
                       <TableCell className="font-medium">{test.name as string}</TableCell>
                       <TableCell>{test.code as string}</TableCell>
                       <TableCell>{test.category as string}</TableCell>
-                      <TableCell>${(test.price as number)?.toFixed(2)}</TableCell>
+                      <TableCell>${Number(test.price ?? 0).toFixed(2)}</TableCell>
                       <TableCell>{test.turnaroundTime as string}</TableCell>
                     </TableRow>
                   ))}

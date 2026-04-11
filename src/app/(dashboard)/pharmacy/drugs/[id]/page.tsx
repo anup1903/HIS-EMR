@@ -49,7 +49,7 @@ export default function DrugDetailPage() {
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Stock</CardTitle></CardHeader>
           <CardContent className={`text-xl font-bold ${(d.currentStock as number) <= (d.reorderLevel as number) ? "text-red-600" : ""}`}>{d.currentStock as number} {d.unit as string}</CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Unit Price</CardTitle></CardHeader>
-          <CardContent className="text-xl font-bold">${(d.unitPrice as number)?.toFixed(2)}</CardContent></Card>
+          <CardContent className="text-xl font-bold">${Number(d.unitPrice ?? 0).toFixed(2)}</CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Reorder Level</CardTitle></CardHeader>
           <CardContent className="text-xl font-bold">{d.reorderLevel as number}</CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Status</CardTitle></CardHeader>

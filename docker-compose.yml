@@ -1,24 +1,24 @@
 services:
-  # PostgreSQL Database - Port 9002
+  # PostgreSQL Database — host port 9004 → container 5432
   db:
     image: postgres:16-alpine
     container_name: his-database
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: his_system
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-his_system}
     ports:
       - "9004:5432"
     volumes:
       - his_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-  # Next.js HIS Application - Port 9000
+  # Next.js HIS Application — host port 9003 → container 3000
   app:
     container_name: his-app
     build:
@@ -28,9 +28,13 @@ services:
     ports:
       - "9003:3000"
     environment:
-      DATABASE_URL: "postgresql://postgres:postgres@db:5432/his_system?schema=public"
-      NEXTAUTH_SECRET: "his-system-docker-secret-key-change-in-production-min-32"
-      NEXTAUTH_URL: "http://localhost:9003"
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-his_system}?schema=public"
+      # Override on the host for production:
+      #   export NEXTAUTH_SECRET=$(openssl rand -base64 32)
+      NEXTAUTH_SECRET: "${NEXTAUTH_SECRET:-dev-secret-change-me-change-me-change-me-32}"
+      NEXTAUTH_URL: "${NEXTAUTH_URL:-http://localhost:9003}"
+      # Optional — set ANTHROPIC_API_KEY on the host to enable AI Rx suggestions.
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
     depends_on:
       db:
         condition: service_healthy

@@ -56,9 +56,9 @@ export default function InvoiceDetailPage() {
       </PageHeader>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total</CardTitle></CardHeader><CardContent className="text-xl font-bold">${(inv.totalAmount as number)?.toFixed(2)}</CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Paid</CardTitle></CardHeader><CardContent className="text-xl font-bold text-green-600">${(inv.paidAmount as number)?.toFixed(2)}</CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Balance</CardTitle></CardHeader><CardContent className="text-xl font-bold text-red-600">${(inv.balanceAmount as number)?.toFixed(2)}</CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Total</CardTitle></CardHeader><CardContent className="text-xl font-bold">${Number(inv.totalAmount ?? 0).toFixed(2)}</CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Paid</CardTitle></CardHeader><CardContent className="text-xl font-bold text-green-600">${Number(inv.paidAmount ?? 0).toFixed(2)}</CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Balance</CardTitle></CardHeader><CardContent className="text-xl font-bold text-red-600">${Number(inv.balanceAmount ?? 0).toFixed(2)}</CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Date</CardTitle></CardHeader><CardContent>{new Date(inv.invoiceDate as string).toLocaleDateString()}</CardContent></Card>
       </div>
 
@@ -79,17 +79,17 @@ export default function InvoiceDetailPage() {
                 <TableRow key={i}>
                   <TableCell>{item.description as string}</TableCell>
                   <TableCell>{item.quantity as number}</TableCell>
-                  <TableCell>${(item.unitPrice as number)?.toFixed(2)}</TableCell>
-                  <TableCell>${(item.amount as number)?.toFixed(2)}</TableCell>
+                  <TableCell>${Number(item.unitPrice ?? 0).toFixed(2)}</TableCell>
+                  <TableCell>${Number(item.amount ?? 0).toFixed(2)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
           <div className="mt-4 flex flex-col items-end space-y-1 text-sm">
-            <div>Subtotal: ${(inv.subtotalAmount as number)?.toFixed(2)}</div>
-            {(inv.discount as number) > 0 && <div>Discount: -${(inv.discount as number)?.toFixed(2)}</div>}
-            {(inv.tax as number) > 0 && <div>Tax: +${(inv.tax as number)?.toFixed(2)}</div>}
-            <div className="font-bold text-base">Total: ${(inv.totalAmount as number)?.toFixed(2)}</div>
+            <div>Subtotal: ${Number(inv.subtotalAmount ?? 0).toFixed(2)}</div>
+            {Number(inv.discount ?? 0) > 0 ? <div>Discount: -${Number(inv.discount ?? 0).toFixed(2)}</div> : null}
+            {Number(inv.tax ?? 0) > 0 ? <div>Tax: +${Number(inv.tax ?? 0).toFixed(2)}</div> : null}
+            <div className="font-bold text-base">Total: ${Number(inv.totalAmount ?? 0).toFixed(2)}</div>
           </div>
         </CardContent>
       </Card>
@@ -106,7 +106,7 @@ export default function InvoiceDetailPage() {
                     <TableCell>{pay.paymentNo as string}</TableCell>
                     <TableCell>{new Date(pay.paymentDate as string).toLocaleDateString()}</TableCell>
                     <TableCell>{(pay.paymentMethod as string)?.replace("_", " ")}</TableCell>
-                    <TableCell className="font-medium">${(pay.amount as number)?.toFixed(2)}</TableCell>
+                    <TableCell className="font-medium">${Number(pay.amount ?? 0).toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

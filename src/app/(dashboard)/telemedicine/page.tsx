@@ -87,11 +87,11 @@ export default function TelemedicinePage() {
                           <TableCell>{(session.meetingPlatform as string)?.replace(/_/g, " ")}</TableCell>
                           <TableCell><StatusBadge status={session.status as string} /></TableCell>
                           <TableCell>
-                            {session.meetingLink && (
+                            {session.meetingLink ? (
                               <Button size="sm" variant="outline" asChild>
                                 <a href={session.meetingLink as string} target="_blank" rel="noreferrer"><Video className="mr-1 h-4 w-4" />Join</a>
                               </Button>
-                            )}
+                            ) : null}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -120,12 +120,12 @@ export default function TelemedicinePage() {
                         <p className="text-lg font-semibold">{(session.patient as Record<string, string>)?.firstName} {(session.patient as Record<string, string>)?.lastName}</p>
                         <p className="text-sm text-muted-foreground">Time: {session.scheduledTime as string}</p>
                         <p className="text-sm text-muted-foreground">Platform: {(session.meetingPlatform as string)?.replace(/_/g, " ")}</p>
-                        {session.chiefComplaint && <p className="text-sm mt-2">{session.chiefComplaint as string}</p>}
-                        {session.meetingLink && (
+                        {session.chiefComplaint ? <p className="text-sm mt-2">{session.chiefComplaint as string}</p> : null}
+                        {session.meetingLink ? (
                           <Button size="sm" className="mt-3 w-full" asChild>
                             <a href={session.meetingLink as string} target="_blank" rel="noreferrer"><Video className="mr-2 h-4 w-4" />Join Session</a>
                           </Button>
-                        )}
+                        ) : null}
                       </CardContent>
                     </Card>
                   ))}

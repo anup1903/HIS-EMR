@@ -1,8 +1,31 @@
-Dockerfile
+Dockerfile*
 .dockerignore
 node_modules
 npm-debug.log
+yarn-debug.log*
+yarn-error.log*
 .next
+.turbo
 .git
 .gitignore
+.github
+.vscode
+.idea
 README.md
+docs
+coverage
+.nyc_output
+.pnpm-store
+
+# SECRETS — never bake into image layers
+.env
+.env.*
+!.env.example
+
+# Local dev artifacts
+*.log
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# macOS
+.DS_Store

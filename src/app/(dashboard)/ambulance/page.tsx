@@ -70,7 +70,7 @@ export default function AmbulanceManagementPage() {
                     </div>
                     <p className="text-sm"><strong>Vehicle:</strong> {(dispatch.ambulance as Record<string, string>)?.vehicleNumber || dispatch.ambulanceId as string}</p>
                     <p className="text-sm"><strong>Pickup:</strong> {dispatch.pickupAddress as string}</p>
-                    {dispatch.patientName && <p className="text-sm"><strong>Patient:</strong> {dispatch.patientName as string}</p>}
+                    {dispatch.patientName ? <p className="text-sm"><strong>Patient:</strong> {dispatch.patientName as string}</p> : null}
                     <p className="text-sm"><strong>Priority:</strong> <span className={dispatch.priority === "URGENT" ? "text-red-600 font-bold" : ""}>{dispatch.priority as string}</span></p>
                     <p className="text-xs text-muted-foreground mt-2">Called: {new Date(dispatch.callTime as string).toLocaleTimeString()}</p>
                   </CardContent>

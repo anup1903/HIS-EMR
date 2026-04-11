@@ -22,6 +22,20 @@
   --color-ring: var(--ring);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
+
+  /* Semantic */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  /* Clinical flags */
+  --color-flag-high: var(--flag-high);
+  --color-flag-low: var(--flag-low);
+  --color-flag-critical: var(--flag-critical);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -30,53 +44,96 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* ─────────── Light theme (healthcare calm teal) ─────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
-  --card: #ffffff;
-  --card-foreground: #0a0a0a;
-  --popover: #ffffff;
-  --popover-foreground: #0a0a0a;
-  --primary: #0f766e;
-  --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --accent: #f4f4f5;
-  --accent-foreground: #18181b;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #0f766e;
-  --sidebar: #f8fafc;
-  --sidebar-foreground: #334155;
+  --background: hsl(210 20% 98%);
+  --foreground: hsl(222 24% 12%);
+
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(222 24% 12%);
+
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(222 24% 12%);
+
+  --primary: hsl(174 72% 36%);
+  --primary-foreground: hsl(0 0% 100%);
+
+  --secondary: hsl(210 16% 96%);
+  --secondary-foreground: hsl(222 24% 18%);
+
+  --muted: hsl(210 16% 94%);
+  --muted-foreground: hsl(220 9% 46%);
+
+  --accent: hsl(174 60% 94%);
+  --accent-foreground: hsl(174 72% 22%);
+
+  --destructive: hsl(0 78% 52%);
+  --destructive-foreground: hsl(0 0% 100%);
+
+  --border: hsl(214 20% 90%);
+  --input: hsl(214 20% 90%);
+  --ring: hsl(174 72% 36%);
+
+  --sidebar: hsl(210 22% 99%);
+  --sidebar-foreground: hsl(222 18% 28%);
+
+  --success: hsl(152 60% 38%);
+  --success-foreground: hsl(0 0% 100%);
+  --warning: hsl(37 92% 50%);
+  --warning-foreground: hsl(0 0% 100%);
+  --info: hsl(212 92% 45%);
+  --info-foreground: hsl(0 0% 100%);
+
+  --flag-high: hsl(14 90% 50%);
+  --flag-low: hsl(215 92% 48%);
+  --flag-critical: hsl(340 82% 46%);
+
   --radius: 0.5rem;
 }
 
+/* ─────────── Dark theme ─────────── */
 .dark {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
-  --card: #0a0a0a;
-  --card-foreground: #fafafa;
-  --popover: #0a0a0a;
-  --popover-foreground: #fafafa;
-  --primary: #14b8a6;
-  --primary-foreground: #0a0a0a;
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --accent: #27272a;
-  --accent-foreground: #fafafa;
-  --destructive: #dc2626;
-  --destructive-foreground: #fafafa;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #14b8a6;
-  --sidebar: #111111;
-  --sidebar-foreground: #cbd5e1;
+  --background: hsl(222 28% 7%);
+  --foreground: hsl(210 20% 96%);
+
+  --card: hsl(222 24% 10%);
+  --card-foreground: hsl(210 20% 96%);
+
+  --popover: hsl(222 24% 10%);
+  --popover-foreground: hsl(210 20% 96%);
+
+  --primary: hsl(174 70% 44%);
+  --primary-foreground: hsl(222 28% 7%);
+
+  --secondary: hsl(222 18% 16%);
+  --secondary-foreground: hsl(210 20% 96%);
+
+  --muted: hsl(222 18% 16%);
+  --muted-foreground: hsl(215 16% 65%);
+
+  --accent: hsl(174 30% 18%);
+  --accent-foreground: hsl(174 80% 78%);
+
+  --destructive: hsl(0 74% 56%);
+  --destructive-foreground: hsl(0 0% 100%);
+
+  --border: hsl(222 16% 18%);
+  --input: hsl(222 16% 18%);
+  --ring: hsl(174 70% 44%);
+
+  --sidebar: hsl(222 28% 9%);
+  --sidebar-foreground: hsl(215 20% 80%);
+
+  --success: hsl(152 56% 48%);
+  --success-foreground: hsl(222 28% 7%);
+  --warning: hsl(37 92% 58%);
+  --warning-foreground: hsl(222 28% 7%);
+  --info: hsl(212 92% 60%);
+  --info-foreground: hsl(222 28% 7%);
+
+  --flag-high: hsl(14 92% 60%);
+  --flag-low: hsl(215 92% 62%);
+  --flag-critical: hsl(340 82% 60%);
 }
 
 @layer base {
@@ -84,8 +141,20 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-feature-settings: "cv11", "ss01";
+    font-variant-ligatures: common-ligatures;
+  }
+  /* Tabular numerals everywhere numbers matter */
+  table,
+  .tabular,
+  input[type="number"] {
+    font-variant-numeric: tabular-nums;
+  }
+  kbd {
+    @apply inline-flex items-center justify-center rounded border px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground bg-muted;
+    min-width: 1.25rem;
   }
 }
 
@@ -93,11 +162,41 @@
   .scrollbar-thin {
     scrollbar-width: thin;
   }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Sticky context bar shadow */
+  .shadow-context {
+    box-shadow:
+      0 1px 0 0 var(--border),
+      0 8px 24px -20px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Clinical flag chip backgrounds */
+  .bg-flag-high {
+    background-color: color-mix(in oklab, var(--flag-high) 14%, transparent);
+    color: var(--flag-high);
+  }
+  .bg-flag-low {
+    background-color: color-mix(in oklab, var(--flag-low) 14%, transparent);
+    color: var(--flag-low);
+  }
+  .bg-flag-crit {
+    background-color: color-mix(in oklab, var(--flag-critical) 16%, transparent);
+    color: var(--flag-critical);
+  }
 }
 
 /* Print styles */
 @media print {
   .no-print {
     display: none !important;
+  }
+  body {
+    background: #fff !important;
   }
 }
