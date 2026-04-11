@@ -34,7 +34,16 @@ export default function QueueManagementPage() {
   const fetchTokens = () => {
     fetch("/api/queue/tokens")
       .then((r) => r.json())
-      .then((data) => setTokens(data.data || []))
+      .then((json) => {
+        // API returns { data: { tokens: [...], stats: {...} } } or just { data: [...] }
+        const payload = json?.data;
+        const list = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.tokens)
+            ? payload.tokens
+            : [];
+        setTokens(list);
+      })
       .finally(() => setLoading(false));
   };
 

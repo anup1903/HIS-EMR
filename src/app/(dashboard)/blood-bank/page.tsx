@@ -40,9 +40,32 @@ export default function BloodBankPage() {
       fetch("/api/blood-bank/donors").then((r) => r.json()),
       fetch("/api/blood-bank/requests").then((r) => r.json()),
     ]).then(([invData, donorData, reqData]) => {
-      setInventory(invData.data || []);
-      setDonors(donorData.data || []);
-      setRequests(reqData.data || []);
+      // /inventory returns { data: { inventory: [...], summary: [...] } }
+      // /donors and /requests return { data: [...] }
+      const invPayload = invData?.data;
+      setInventory(
+        Array.isArray(invPayload)
+          ? invPayload
+          : Array.isArray(invPayload?.inventory)
+            ? invPayload.inventory
+            : [],
+      );
+      const donorPayload = donorData?.data;
+      setDonors(
+        Array.isArray(donorPayload)
+          ? donorPayload
+          : Array.isArray(donorPayload?.donors)
+            ? donorPayload.donors
+            : [],
+      );
+      const reqPayload = reqData?.data;
+      setRequests(
+        Array.isArray(reqPayload)
+          ? reqPayload
+          : Array.isArray(reqPayload?.requests)
+            ? reqPayload.requests
+            : [],
+      );
     }).finally(() => setLoading(false));
   }, []);
 
