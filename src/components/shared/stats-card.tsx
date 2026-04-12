@@ -36,14 +36,14 @@ export function StatsCard({
   }[accent];
 
   return (
-    <Card className={cn("relative overflow-hidden", className)}>
+    <Card className={cn("relative overflow-hidden stat-card animate-fade-in", className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           {title}
         </CardTitle>
         <span
           className={cn(
-            "flex h-7 w-7 items-center justify-center rounded-md",
+            "flex h-8 w-8 items-center justify-center rounded-xl",
             accentClass,
           )}
         >

@@ -54,7 +54,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
   const isDark = mounted && (resolvedTheme ?? theme) === "dark";
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 px-4 md:px-6 no-print">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b glass-card px-4 md:px-6 no-print">
       <Button
         variant="ghost"
         size="icon"

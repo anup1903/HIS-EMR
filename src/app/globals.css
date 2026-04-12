@@ -189,6 +189,77 @@
     background-color: color-mix(in oklab, var(--flag-critical) 16%, transparent);
     color: var(--flag-critical);
   }
+
+  /* ─── Glow-up: glassmorphism card ─── */
+  .glass-card {
+    background: color-mix(in srgb, var(--card) 80%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  /* ─── Glow-up: stat-card with hover lift ─── */
+  .stat-card {
+    @apply rounded-xl border p-5;
+    border-color: color-mix(in srgb, var(--border) 60%, transparent);
+    transition: all 0.2s ease;
+  }
+  .stat-card:hover {
+    box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.08);
+    border-color: color-mix(in srgb, var(--primary) 25%, transparent);
+    transform: translateY(-1px);
+  }
+
+  /* ─── Glow-up: sidebar link styles ─── */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all;
+    transition-duration: 150ms;
+  }
+  .sidebar-link-active {
+    @apply font-medium;
+  }
+  .sidebar-group-title {
+    @apply flex items-center gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider cursor-pointer select-none transition-colors;
+  }
+}
+
+/* ─── Glow-up: animations ─── */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.4s ease-out both;
+  }
+  .animate-pulse-dot {
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  .animate-slide-in {
+    animation: slide-in-right 0.3s ease-out both;
+  }
 }
 
 /* Print styles */
