@@ -2,23 +2,44 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { PageHeader } from "@/components/shared/page-header";
-import { StatusBadge } from "@/components/shared/status-badge";
 import { StatsCard } from "@/components/shared/stats-card";
+import { MedicalEmptyState } from "@/components/shared/medical-empty-state";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import { Stethoscope, Calendar, Clock, CheckCircle, Eye } from "lucide-react";
+import {
+  Scissors,
+  Calendar,
+  Clock,
+  CheckCircle,
+  Activity,
+  Eye,
+  Loader2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const SURGERY_STATUS_COLORS: Record<string, string> = {
-  SCHEDULED: "bg-blue-100 text-blue-800",
-  PREP: "bg-yellow-100 text-yellow-800",
-  IN_PROGRESS: "bg-purple-100 text-purple-800",
-  RECOVERY: "bg-orange-100 text-orange-800",
-  COMPLETED: "bg-green-100 text-green-800",
+const surgeryStatusColor: Record<string, string> = {
+  SCHEDULED: "bg-info/10 text-info",
+  PREP: "bg-warning/10 text-warning",
+  IN_PROGRESS: "bg-warning/10 text-warning",
+  RECOVERY: "bg-info/10 text-info",
+  COMPLETED: "bg-success/10 text-success",
+  CANCELLED: "bg-destructive/10 text-destructive",
+};
+
+const priorityColor: Record<string, string> = {
+  EMERGENCY: "bg-destructive/10 text-destructive",
+  URGENT: "bg-warning/10 text-warning",
+  ROUTINE: "bg-secondary text-muted-foreground",
 };
 
 export default function SurgerySchedulePage() {
@@ -38,30 +59,64 @@ export default function SurgerySchedulePage() {
       .finally(() => setLoading(false));
   }, [dateFilter, statusFilter]);
 
-  const todayStr = new Date().toISOString().split("T")[0];
-  const todaySurgeries = surgeries.filter(
-    (s) => (s.date as string)?.startsWith(todayStr)
-  );
   const scheduled = surgeries.filter((s) => s.status === "SCHEDULED").length;
   const inProgress = surgeries.filter((s) => s.status === "IN_PROGRESS").length;
   const completed = surgeries.filter((s) => s.status === "COMPLETED").length;
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Surgery Schedule" description="Manage surgical procedures and schedules">
-        <Button asChild>
-          <Link href="/surgery/theatres">Operation Theatres</Link>
+    <div className="space-y-6 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+            <Scissors className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Operation Theatre</h1>
+            <p className="text-sm text-muted-foreground">
+              Surgery scheduling and OT management.
+            </p>
+          </div>
+        </div>
+        <Button asChild size="sm" variant="outline">
+          <Link href="/surgery/theatres">OT Rooms</Link>
         </Button>
-      </PageHeader>
-
-      <div className="grid gap-4 md:grid-cols-4">
-        <StatsCard title="Today's Surgeries" value={todaySurgeries.length} icon={Stethoscope} />
-        <StatsCard title="Scheduled" value={scheduled} icon={Calendar} />
-        <StatsCard title="In Progress" value={inProgress} icon={Clock} />
-        <StatsCard title="Completed" value={completed} icon={CheckCircle} />
       </div>
 
-      <div className="flex flex-wrap gap-4">
+      {/* Stats */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <StatsCard
+          title="Total Surgeries"
+          value={surgeries.length}
+          description="Current results"
+          icon={Activity}
+          accent="primary"
+        />
+        <StatsCard
+          title="Scheduled"
+          value={scheduled}
+          description="Upcoming procedures"
+          icon={Calendar}
+          accent="info"
+        />
+        <StatsCard
+          title="In Progress"
+          value={inProgress}
+          description="Currently underway"
+          icon={Clock}
+          accent="warning"
+        />
+        <StatsCard
+          title="Completed"
+          value={completed}
+          description="Finished procedures"
+          icon={CheckCircle}
+          accent="success"
+        />
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3">
         <Input
           type="date"
           value={dateFilter}
@@ -69,7 +124,7 @@ export default function SurgerySchedulePage() {
           className="w-48"
         />
         <select
-          className="flex h-10 rounded-md border px-3 py-2 text-sm"
+          className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-ring"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
@@ -82,70 +137,71 @@ export default function SurgerySchedulePage() {
         </select>
       </div>
 
+      {/* Surgery Table */}
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="p-0">
           {loading ? (
-            <p className="text-muted-foreground">Loading...</p>
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
           ) : surgeries.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">No surgeries found</p>
+            <MedicalEmptyState
+              illustration="calendar"
+              title="No surgeries found"
+              description="No surgeries scheduled for the selected date and filters."
+              className="my-6"
+            />
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Surgery #</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Procedure</TableHead>
-                  <TableHead>OT</TableHead>
-                  <TableHead>Surgeon</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="bg-secondary/50">
+                  <TableHead className="text-[11px] uppercase tracking-wider">Surgery #</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Patient</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Procedure</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">OT</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Surgeon</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Date</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Time</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Priority</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Status</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider w-[80px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {surgeries.map((surgery) => (
-                  <TableRow key={surgery.id as string}>
-                    <TableCell className="font-medium">
+                  <TableRow key={surgery.id as string} className="hover:bg-secondary/30 transition-colors">
+                    <TableCell className="font-mono text-xs font-medium">
                       {surgery.surgeryNo as string}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-sm">
                       {(surgery.patient as Record<string, string>)?.firstName}{" "}
                       {(surgery.patient as Record<string, string>)?.lastName}
                     </TableCell>
-                    <TableCell>{surgery.procedure as string}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-sm">{surgery.procedure as string}</TableCell>
+                    <TableCell className="text-sm">
                       {(surgery.theatre as Record<string, string>)?.name || (surgery.theatreName as string) || "-"}
                     </TableCell>
-                    <TableCell>{surgery.surgeon as string}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-sm">{surgery.surgeon as string}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
                       {new Date(surgery.date as string).toLocaleDateString()}
                     </TableCell>
-                    <TableCell>{surgery.startTime as string}</TableCell>
-                    <TableCell>
-                      <StatusBadge
-                        status={surgery.status as string}
-                        colorMap={SURGERY_STATUS_COLORS}
-                      />
-                    </TableCell>
+                    <TableCell className="text-sm tabular-nums">{surgery.startTime as string}</TableCell>
                     <TableCell>
                       {surgery.priority ? (
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            surgery.priority === "EMERGENCY"
-                              ? "bg-red-100 text-red-800"
-                              : surgery.priority === "URGENT"
-                              ? "bg-orange-100 text-orange-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
+                        <Badge className={cn("text-[10px] border-0", priorityColor[(surgery.priority as string)] || "bg-secondary text-muted-foreground")}>
                           {(surgery.priority as string).replace(/_/g, " ")}
-                        </span>
-                      ) : null}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="sm" asChild>
+                      <Badge className={cn("text-[10px] border-0", surgeryStatusColor[(surgery.status as string)] || "bg-muted text-muted-foreground")}>
+                        {(surgery.status as string)?.replace(/_/g, " ")}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
                         <Link href={`/surgery/${surgery.id}`}>
                           <Eye className="h-4 w-4" />
                         </Link>

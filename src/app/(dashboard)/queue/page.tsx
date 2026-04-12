@@ -1,21 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PageHeader } from "@/components/shared/page-header";
-import { StatusBadge } from "@/components/shared/status-badge";
 import { StatsCard } from "@/components/shared/stats-card";
+import { MedicalEmptyState } from "@/components/shared/medical-empty-state";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Ticket, Users, Clock, CheckCircle, SkipForward, Volume2 } from "lucide-react";
+import { Ticket, Users, Clock, CheckCircle, SkipForward, Volume2, ListOrdered } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const TOKEN_STATUS_COLORS: Record<string, string> = {
-  WAITING: "bg-yellow-100 text-yellow-800",
-  SERVING: "bg-blue-100 text-blue-800",
-  COMPLETED: "bg-green-100 text-green-800",
-  SKIPPED: "bg-gray-100 text-gray-800",
-  CANCELLED: "bg-red-100 text-red-800",
+const TOKEN_STATUS_MAP: Record<string, string> = {
+  WAITING: "bg-warning/10 text-warning",
+  SERVING: "bg-info/10 text-info",
+  COMPLETED: "bg-success/10 text-success",
+  SKIPPED: "bg-muted text-muted-foreground",
+  CANCELLED: "bg-destructive/10 text-destructive",
 };
 
 const SERVICE_TYPES = ["OPD", "PHARMACY", "LAB", "RADIOLOGY", "BILLING"];
@@ -82,28 +83,47 @@ export default function QueueManagementPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Queue Management" description="Token-based queue display and management">
-        <Button onClick={handleNewToken}><Ticket className="mr-2 h-4 w-4" />Generate Token</Button>
-      </PageHeader>
+    <div className="space-y-6 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+            <ListOrdered className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Queue Management</h1>
+            <p className="text-sm text-muted-foreground">Token-based queue display and management.</p>
+          </div>
+        </div>
+        <Button onClick={handleNewToken}>
+          <Ticket className="mr-2 h-4 w-4" />Generate Token
+        </Button>
+      </div>
 
+      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
-        <StatsCard title="Waiting" value={waiting.length} icon={Users} />
-        <StatsCard title="Now Serving" value={serving.length} icon={Volume2} />
-        <StatsCard title="Completed" value={completed.length} icon={CheckCircle} />
-        <StatsCard title="Avg Wait (min)" value={waiting.length > 0 ? Math.round(waiting.reduce((sum, t) => sum + ((t.estimatedWait as number) || 10), 0) / waiting.length) : 0} icon={Clock} />
+        <StatsCard title="Waiting" value={waiting.length} icon={Users} accent="warning" />
+        <StatsCard title="Now Serving" value={serving.length} icon={Volume2} accent="info" />
+        <StatsCard title="Completed" value={completed.length} icon={CheckCircle} accent="success" />
+        <StatsCard title="Avg Wait (min)" value={waiting.length > 0 ? Math.round(waiting.reduce((sum, t) => sum + ((t.estimatedWait as number) || 10), 0) / waiting.length) : 0} icon={Clock} accent="primary" />
       </div>
 
       {/* Now Serving Display */}
       {serving.length > 0 && (
         <div className="grid gap-4 md:grid-cols-3">
           {serving.map((token) => (
-            <Card key={token.id as string} className="border-2 border-blue-500">
+            <Card key={token.id as string} className="stat-card border-2 border-primary/30">
               <CardContent className="pt-6 text-center">
-                <p className="text-sm text-muted-foreground">{token.serviceType as string}</p>
-                <p className="text-6xl font-bold text-blue-600 my-4">{token.tokenNo as number}</p>
-                <p className="text-sm">{(token.patientName as string | undefined) || `${(token.patient as Record<string, string>)?.firstName || ""} ${(token.patient as Record<string, string>)?.lastName || ""}`.trim() || "Walk-in"}</p>
-                <p className="text-xs text-muted-foreground mt-1">{token.counterNo ? `Counter ${token.counterNo}` : ""}</p>
+                <p className="text-sm text-muted-foreground font-medium">{token.serviceType as string}</p>
+                <p className="text-5xl font-bold text-primary tabular-nums my-4">{token.tokenNo as number}</p>
+                <p className="text-sm">
+                  {(token.patientName as string | undefined) ||
+                    `${(token.patient as Record<string, string>)?.firstName || ""} ${(token.patient as Record<string, string>)?.lastName || ""}`.trim() ||
+                    "Walk-in"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {token.counterNo ? `Counter ${token.counterNo}` : ""}
+                </p>
                 <div className="flex gap-2 mt-4 justify-center">
                   <Button size="sm" onClick={() => handleComplete(token.id as string)}>Complete</Button>
                   <Button size="sm" variant="outline" onClick={() => handleSkip(token.id as string)}>Skip</Button>
@@ -114,10 +134,13 @@ export default function QueueManagementPage() {
         </div>
       )}
 
+      {/* Service Type Tabs */}
       <Tabs defaultValue="OPD" onValueChange={setServiceFilter}>
         <TabsList>
           {SERVICE_TYPES.map((st) => (
-            <TabsTrigger key={st} value={st}>{st} ({todayTokens.filter((t) => t.serviceType === st && t.status === "WAITING").length})</TabsTrigger>
+            <TabsTrigger key={st} value={st}>
+              {st} ({todayTokens.filter((t) => t.serviceType === st && t.status === "WAITING").length})
+            </TabsTrigger>
           ))}
         </TabsList>
 
@@ -126,42 +149,69 @@ export default function QueueManagementPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{st} Queue</CardTitle>
-                <Button size="sm" onClick={handleCallNext}><Volume2 className="mr-2 h-4 w-4" />Call Next</Button>
+                <Button size="sm" onClick={handleCallNext}>
+                  <Volume2 className="mr-2 h-4 w-4" />Call Next
+                </Button>
               </CardHeader>
               <CardContent>
-                {loading ? <p className="text-muted-foreground">Loading...</p> : filteredTokens.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">No tokens in {st} queue</p>
+                {loading ? (
+                  <p className="text-muted-foreground text-center py-8">Loading...</p>
+                ) : filteredTokens.length === 0 ? (
+                  <MedicalEmptyState
+                    illustration="calendar"
+                    title={`No tokens in ${st} queue`}
+                  />
                 ) : (
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>Token #</TableHead>
-                        <TableHead>Patient</TableHead>
-                        <TableHead>Priority</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Wait Time</TableHead>
-                        <TableHead>Actions</TableHead>
+                      <TableRow className="bg-secondary/50">
+                        <TableHead className="text-[11px] uppercase tracking-wider">Token #</TableHead>
+                        <TableHead className="text-[11px] uppercase tracking-wider">Patient</TableHead>
+                        <TableHead className="text-[11px] uppercase tracking-wider">Priority</TableHead>
+                        <TableHead className="text-[11px] uppercase tracking-wider">Status</TableHead>
+                        <TableHead className="text-[11px] uppercase tracking-wider">Wait Time</TableHead>
+                        <TableHead className="text-[11px] uppercase tracking-wider">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filteredTokens.sort((a, b) => (a.tokenNo as number) - (b.tokenNo as number)).map((token) => (
-                        <TableRow key={token.id as string}>
-                          <TableCell className="font-bold text-lg">{token.tokenNo as number}</TableCell>
-                          <TableCell>{(token.patientName as string | undefined) || `${(token.patient as Record<string, string>)?.firstName || ""} ${(token.patient as Record<string, string>)?.lastName || ""}`.trim() || "Walk-in"}</TableCell>
+                        <TableRow key={token.id as string} className="hover:bg-secondary/30 transition-colors">
+                          <TableCell className="font-bold text-lg tabular-nums">{token.tokenNo as number}</TableCell>
                           <TableCell>
-                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${token.priority === "EMERGENCY" ? "bg-red-100 text-red-800" : token.priority === "PRIORITY" ? "bg-orange-100 text-orange-800" : "bg-gray-100 text-gray-800"}`}>
+                            {(token.patientName as string | undefined) ||
+                              `${(token.patient as Record<string, string>)?.firstName || ""} ${(token.patient as Record<string, string>)?.lastName || ""}`.trim() ||
+                              "Walk-in"}
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={cn(
+                              "text-[10px] border-0",
+                              token.priority === "EMERGENCY" ? "bg-destructive/10 text-destructive" :
+                              token.priority === "PRIORITY" ? "bg-warning/10 text-warning" :
+                              "bg-muted text-muted-foreground"
+                            )}>
                               {token.priority as string}
-                            </span>
+                            </Badge>
                           </TableCell>
                           <TableCell>
-                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${TOKEN_STATUS_COLORS[(token.status as string)] || "bg-gray-100 text-gray-800"}`}>
+                            <Badge className={cn(
+                              "text-[10px] border-0",
+                              TOKEN_STATUS_MAP[(token.status as string)] || "bg-muted text-muted-foreground"
+                            )}>
                               {(token.status as string)?.replace(/_/g, " ")}
-                            </span>
+                            </Badge>
                           </TableCell>
-                          <TableCell>{token.estimatedWait ? `${token.estimatedWait} min` : "-"}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {token.estimatedWait ? `${token.estimatedWait} min` : "-"}
+                          </TableCell>
                           <TableCell className="space-x-1">
-                            {token.status === "WAITING" && <Button size="sm" variant="ghost" onClick={() => handleSkip(token.id as string)}><SkipForward className="h-4 w-4" /></Button>}
-                            {token.status === "SERVING" && <Button size="sm" onClick={() => handleComplete(token.id as string)}>Done</Button>}
+                            {token.status === "WAITING" && (
+                              <Button size="sm" variant="ghost" onClick={() => handleSkip(token.id as string)}>
+                                <SkipForward className="h-4 w-4" />
+                              </Button>
+                            )}
+                            {token.status === "SERVING" && (
+                              <Button size="sm" onClick={() => handleComplete(token.id as string)}>Done</Button>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}

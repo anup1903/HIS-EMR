@@ -238,7 +238,7 @@ async function main() {
     "08:30", "09:00", "09:15", "09:30", "09:45", "10:00", "10:30", "11:00",
     "11:30", "12:00", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30",
   ];
-  const statuses = ["SCHEDULED", "CHECKED_IN", "IN_PROGRESS", "COMPLETED", "COMPLETED", "COMPLETED"] as const;
+  const statuses: ("SCHEDULED" | "CHECKED_IN" | "IN_PROGRESS" | "COMPLETED")[] = ["SCHEDULED", "CHECKED_IN", "IN_PROGRESS", "COMPLETED", "COMPLETED", "COMPLETED"];
   let aptCount = 0;
   for (let i = 0; i < Math.min(slots.length, patientIds.length); i++) {
     const existing = await prisma.appointment.findFirst({

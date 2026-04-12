@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PageHeader } from "@/components/shared/page-header";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { StatsCard } from "@/components/shared/stats-card";
+import { MedicalEmptyState } from "@/components/shared/medical-empty-state";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -21,13 +23,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Shield,
   FileText,
   Clock,
   CheckCircle,
-  DollarSign,
+  IndianRupee,
   Loader2,
   Eye,
+  Search,
+  Plus,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const CLAIM_STATUSES = [
   "ALL",
@@ -39,11 +46,23 @@ const CLAIM_STATUSES = [
   "APPEALED",
 ] as const;
 
+const claimStatusColor: Record<string, string> = {
+  APPROVED: "bg-success/10 text-success",
+  UNDER_REVIEW: "bg-warning/10 text-warning",
+  SUBMITTED: "bg-info/10 text-info",
+  REJECTED: "bg-destructive/10 text-destructive",
+  SETTLED: "bg-success/10 text-success",
+  DRAFT: "bg-muted text-muted-foreground",
+  PENDING: "bg-warning/10 text-warning",
+  APPEALED: "bg-info/10 text-info",
+};
+
 export default function InsuranceClaimsPage() {
   const [claims, setClaims] = useState<Record<string, unknown>[]>([]);
   const [stats, setStats] = useState<Record<string, unknown>>({});
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -65,64 +84,81 @@ export default function InsuranceClaimsPage() {
   const approvedCount = (stats.approvedCount as number) || 0;
   const settledAmount = (stats.settledAmount as number) || 0;
 
-  return (
-    <div className="space-y-4">
-      <PageHeader
-        title="Insurance Claims"
-        description="Manage insurance and TPA claims"
-        createHref="/insurance/claims/new"
-        createLabel="New Claim"
-      />
+  const filteredClaims = search
+    ? claims.filter(
+        (c) =>
+          ((c.claimNumber as string) || "").toLowerCase().includes(search.toLowerCase()) ||
+          ((c.patientName as string) || "").toLowerCase().includes(search.toLowerCase()) ||
+          ((c.providerName as string) || "").toLowerCase().includes(search.toLowerCase())
+      )
+    : claims;
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Claims</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalClaims}</div>
-            <p className="text-xs text-muted-foreground">All time claims</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{pendingCount}</div>
-            <p className="text-xs text-muted-foreground">Awaiting review</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Approved</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{approvedCount}</div>
-            <p className="text-xs text-muted-foreground">Ready for settlement</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Settled Amount</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {settledAmount.toLocaleString("en-US", {
-                style: "currency",
-                currency: "USD",
-              })}
-            </div>
-            <p className="text-xs text-muted-foreground">Total settled</p>
-          </CardContent>
-        </Card>
+  return (
+    <div className="space-y-6 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+            <Shield className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Insurance & TPA</h1>
+            <p className="text-sm text-muted-foreground">
+              Claims management, providers, and policies.
+            </p>
+          </div>
+        </div>
+        <Button asChild size="sm">
+          <Link href="/insurance/claims/new">
+            <Plus className="mr-2 h-4 w-4" />
+            New Claim
+          </Link>
+        </Button>
       </div>
 
-      <div className="flex items-center gap-4">
+      {/* Stats */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <StatsCard
+          title="Total Claims"
+          value={totalClaims}
+          description="All time claims"
+          icon={FileText}
+          accent="primary"
+        />
+        <StatsCard
+          title="Pending"
+          value={pendingCount}
+          description="Awaiting review"
+          icon={Clock}
+          accent="warning"
+        />
+        <StatsCard
+          title="Approved"
+          value={approvedCount}
+          description="Ready for settlement"
+          icon={CheckCircle}
+          accent="success"
+        />
+        <StatsCard
+          title="Settled Amount"
+          value={`₹${Number(settledAmount ?? 0).toFixed(2)}`}
+          description="Total settled"
+          icon={IndianRupee}
+          accent="info"
+        />
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search claims..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
         <div className="w-[200px]">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger>
@@ -139,68 +175,66 @@ export default function InsuranceClaimsPage() {
         </div>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Claim #</TableHead>
-              <TableHead>Patient</TableHead>
-              <TableHead>Provider</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="w-[80px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                </TableCell>
-              </TableRow>
-            ) : claims.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={8}
-                  className="text-center py-8 text-muted-foreground"
-                >
-                  No claims found
-                </TableCell>
-              </TableRow>
-            ) : (
-              claims.map((claim) => (
-                <TableRow key={claim.id as string}>
-                  <TableCell className="font-medium">
-                    {claim.claimNumber as string}
-                  </TableCell>
-                  <TableCell>{claim.patientName as string}</TableCell>
-                  <TableCell>{claim.providerName as string}</TableCell>
-                  <TableCell>{claim.claimType as string}</TableCell>
-                  <TableCell>
-                    {((claim.amount as number) || 0).toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    })}
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={claim.status as string} />
-                  </TableCell>
-                  <TableCell>
-                    {new Date(claim.createdAt as string).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="icon">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
+      {/* Claims Table */}
+      <Card>
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : filteredClaims.length === 0 ? (
+            <MedicalEmptyState
+              illustration="inbox"
+              title="No claims found"
+              description="No insurance claims match your current filters."
+              className="my-6"
+            />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-secondary/50">
+                  <TableHead className="text-[11px] uppercase tracking-wider">Claim #</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Patient</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Provider</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Type</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Amount</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Status</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Date</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider w-[80px]">Actions</TableHead>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              </TableHeader>
+              <TableBody>
+                {filteredClaims.map((claim) => (
+                  <TableRow key={claim.id as string} className="hover:bg-secondary/30 transition-colors">
+                    <TableCell className="font-mono text-xs font-medium">
+                      {claim.claimNumber as string}
+                    </TableCell>
+                    <TableCell className="text-sm">{claim.patientName as string}</TableCell>
+                    <TableCell className="text-sm">{claim.providerName as string}</TableCell>
+                    <TableCell className="text-sm">{(claim.claimType as string)?.replace(/_/g, " ")}</TableCell>
+                    <TableCell className="tabular-nums text-sm">
+                      ₹{Number(claim.amount ?? 0).toFixed(2)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={cn("text-[10px] border-0", claimStatusColor[(claim.status as string)] || "bg-muted text-muted-foreground")}>
+                        {(claim.status as string)?.replace(/_/g, " ")}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {new Date(claim.createdAt as string).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

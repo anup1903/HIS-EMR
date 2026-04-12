@@ -1,14 +1,16 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { PageHeader } from "@/components/shared/page-header";
+import { MedicalEmptyState } from "@/components/shared/medical-empty-state";
 import { StatsCard } from "@/components/shared/stats-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { FileText, Upload, Download, Folder, Search, File, Image, FileSpreadsheet } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 function getFileIcon(type: string) {
   if (type?.includes("image")) return <Image className="h-4 w-4 text-green-600" />;
@@ -63,42 +65,56 @@ export default function DocumentManagementPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Document Management" description="Patient documents, reports, and file management">
-        <Button onClick={() => setShowUpload(!showUpload)}><Upload className="mr-2 h-4 w-4" />Upload Document</Button>
-      </PageHeader>
-
-      <div className="grid gap-4 md:grid-cols-4">
-        <StatsCard title="Total Documents" value={documents.length} icon={FileText} />
-        <StatsCard title="Categories" value={categories.size} icon={Folder} />
-        <StatsCard title="Reports" value={documents.filter((d) => d.type === "REPORT").length} icon={FileSpreadsheet} />
-        <StatsCard title="Images/Scans" value={documents.filter((d) => d.type === "SCAN" || d.type === "IMAGE").length} icon={Image} />
+    <div className="space-y-6 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+            <FileText className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Document Management</h1>
+            <p className="text-sm text-muted-foreground">Upload, search, and manage patient documents.</p>
+          </div>
+        </div>
+        <Button onClick={() => setShowUpload(!showUpload)}>
+          <Upload className="mr-2 h-4 w-4" />Upload Document
+        </Button>
       </div>
 
+      {/* Stats */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <StatsCard title="Total Documents" value={documents.length} icon={FileText} accent="primary" />
+        <StatsCard title="Categories" value={categories.size} icon={Folder} accent="info" />
+        <StatsCard title="Reports" value={documents.filter((d) => d.type === "REPORT").length} icon={FileSpreadsheet} accent="warning" />
+        <StatsCard title="Images/Scans" value={documents.filter((d) => d.type === "SCAN" || d.type === "IMAGE").length} icon={Image} accent="success" />
+      </div>
+
+      {/* Upload Form */}
       {showUpload && (
         <Card>
           <CardHeader><CardTitle>Upload Document</CardTitle></CardHeader>
           <CardContent>
             <form onSubmit={handleUpload} className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <div>
+                <div className="space-y-1.5">
                   <Label>Patient *</Label>
-                  <select className="flex h-10 w-full rounded-md border px-3 py-2 text-sm" value={uploadForm.patientId} onChange={(e) => setUploadForm({ ...uploadForm, patientId: e.target.value })} required>
+                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={uploadForm.patientId} onChange={(e) => setUploadForm({ ...uploadForm, patientId: e.target.value })} required>
                     <option value="">Select Patient</option>
                     {patients.map((p) => <option key={p.id} value={p.id}>{p.firstName} {p.lastName} ({p.mrn})</option>)}
                   </select>
                 </div>
-                <div>
+                <div className="space-y-1.5">
                   <Label>Document Type *</Label>
-                  <select className="flex h-10 w-full rounded-md border px-3 py-2 text-sm" value={uploadForm.type} onChange={(e) => setUploadForm({ ...uploadForm, type: e.target.value })}>
+                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={uploadForm.type} onChange={(e) => setUploadForm({ ...uploadForm, type: e.target.value })}>
                     <option value="REPORT">Report</option><option value="LAB_RESULT">Lab Result</option><option value="RADIOLOGY">Radiology</option>
                     <option value="PRESCRIPTION">Prescription</option><option value="DISCHARGE_SUMMARY">Discharge Summary</option>
                     <option value="CONSENT">Consent Form</option><option value="INSURANCE">Insurance Document</option>
                     <option value="SCAN">Scan/Image</option><option value="OTHER">Other</option>
                   </select>
                 </div>
-                <div><Label>Title *</Label><Input value={uploadForm.title} onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })} required placeholder="Document title..." /></div>
-                <div><Label>File *</Label><Input type="file" ref={fileInputRef} required /></div>
+                <div className="space-y-1.5"><Label>Title *</Label><Input value={uploadForm.title} onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })} required placeholder="Document title..." /></div>
+                <div className="space-y-1.5"><Label>File *</Label><Input type="file" ref={fileInputRef} required /></div>
               </div>
               <div className="flex gap-2">
                 <Button type="submit" disabled={uploading}>{uploading ? "Uploading..." : "Upload"}</Button>
@@ -109,44 +125,54 @@ export default function DocumentManagementPage() {
         </Card>
       )}
 
+      {/* Documents Table */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search documents..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-            </div>
+        <CardHeader className="pb-3">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search documents..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 h-9 text-sm"
+            />
           </div>
         </CardHeader>
         <CardContent>
-          {loading ? <p className="text-muted-foreground">Loading...</p> : filtered.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">No documents found</p>
+          {loading ? (
+            <p className="text-muted-foreground">Loading...</p>
+          ) : filtered.length === 0 ? (
+            <MedicalEmptyState
+              illustration="inbox"
+              title="No documents found"
+              description="Upload a document or try a different search."
+            />
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Uploaded By</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="bg-secondary/50">
+                  <TableHead className="text-[11px] uppercase tracking-wider w-10">Type</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Title</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Patient</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Category</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Uploaded By</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Date</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider w-16">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map((doc) => (
-                  <TableRow key={doc.id as string}>
+                  <TableRow key={doc.id as string} className="hover:bg-secondary/30 transition-colors">
                     <TableCell>{getFileIcon(doc.fileType as string || doc.type as string)}</TableCell>
-                    <TableCell className="font-medium">{doc.title as string}</TableCell>
+                    <TableCell className="font-medium text-sm">{doc.title as string}</TableCell>
                     <TableCell>{(doc.patient as Record<string, string>)?.firstName} {(doc.patient as Record<string, string>)?.lastName}</TableCell>
                     <TableCell>
-                      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800">
+                      <Badge className="text-[10px] border-0 bg-info/10 text-info">
                         {(doc.type as string)?.replace(/_/g, " ")}
-                      </span>
+                      </Badge>
                     </TableCell>
-                    <TableCell>{doc.uploadedBy as string}</TableCell>
-                    <TableCell>{new Date(doc.createdAt as string).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-sm">{doc.uploadedBy as string}</TableCell>
+                    <TableCell className="tabular-nums">{new Date(doc.createdAt as string).toLocaleDateString()}</TableCell>
                     <TableCell>
                       {doc.filePath ? (
                         <Button size="sm" variant="ghost" asChild>
